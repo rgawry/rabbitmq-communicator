@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{0DA32875-6873-4F4D-8FD9-03DDE867FCCC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0CADFC58-B808-45D7-9E9B-BF8EABAE1E4F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{6D4A640E-FF16-40F6-8F7F-FC85C28E4EFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B511C8CD-A77B-4206-9B20-A1C981D064E8} = {0CADFC58-B808-45D7-9E9B-BF8EABAE1E4F}
+		{0DA32875-6873-4F4D-8FD9-03DDE867FCCC} = {0CADFC58-B808-45D7-9E9B-BF8EABAE1E4F}
 	EndGlobalSection
 EndGlobal
