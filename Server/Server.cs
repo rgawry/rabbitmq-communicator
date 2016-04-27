@@ -1,4 +1,7 @@
-﻿using RabbitMQ.Client;
+﻿using Common;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,56 +10,50 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public interface IServer : IDisposable
+    public interface IServer
     {
-        void Connect();
-        void Bind(string name);
+
     }
 
     public class Server : IServer
     {
-        private ConnectionFactory _connectionFactory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-        private IConnection _connection;
-        private IModel _channel;
-        private IList<string> _declaredQueues;
+        private List<string> _rooms;
+        private List<string> _users;
 
-        public void Bind(string name)
+        private IConsumer _consumer;
+
+        public Server(IConsumer consumer)
         {
-            string queueName = string.Empty;
-            if (!_declaredQueues.Contains(name))
-            {
-                queueName = _channel.QueueDeclare().QueueName;
-                _declaredQueues.Add(queueName);
-            }
-            _channel.QueueBind(queue: queueName, exchange: "", routingKey: name);
+            _consumer = consumer;
         }
 
-        public void Connect()
+        public void ListenForSessionRequest()
         {
-            _connection = _connectionFactory.CreateConnection();
-            _channel = _connection.CreateModel();
+            _consumer.Consume();
         }
 
-        public void Dispose()
-        {
-            if (_channel != null) _channel.Dispose();
-            if (_connection != null) _channel.Dispose();
-        }
-    }
-
-    class ServerApp
-    {
-        static void Main(string[] args)
+        private void CheckRequest(OpenSessionRequest request)
         {
             var factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare(queue: "communicator-main",
-                    durable: false,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
+                channel.ExchangeDeclare("session-exange", ExchangeType.Direct, false, true, null);
+                channel.QueueDeclare("session-response", false, false, true, null);
+                channel.QueueBind("session-response", "session-exchange", "session-response");
+                var response = new OpenSessionResponse();
+                if (_users.Contains(request.Login))
+                {
+                    response.IsOpen = false;
+                }
+                else
+                {
+                    response.IsOpen = true;
+                    _users.Add(request.Login);
+                    _rooms.Add(request.Room);
+                }
+                var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
+                channel.BasicPublish("session-exchange", "session-response", null, body);
             }
         }
     }

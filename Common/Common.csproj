@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{37219D40-FC94-4C35-A441-62D6A1B2FA6B}</ProjectGuid>
+    <ProjectGuid>{9D16257B-8E15-4A45-9EC0-95DDADDAF3CF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Client</RootNamespace>
-    <AssemblyName>Client</AssemblyName>
+    <RootNamespace>Common</RootNamespace>
+    <AssemblyName>Common</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -48,14 +48,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client.cs" />
+    <Compile Include="OpenSessionRequest.cs" />
+    <Compile Include="OpenSessionResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <Project>{9d16257b-8e15-4a45-9ec0-95ddaddaf3cf}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
+    <Compile Include="RabbitMqConsume.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
