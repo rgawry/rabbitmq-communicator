@@ -9,6 +9,5 @@ namespace Common
     public class OpenSessionRequest
     {
         public string Login { get; set; }
-        public string Room { get; set; }
     }
 }

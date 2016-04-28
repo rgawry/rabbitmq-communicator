@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Server;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,8 @@ namespace ServerConsoleApp
     {
         static void Main(string[] args)
         {
-            
+            IServer server = new Server.Server();
+            server.ListenForNewSession();
         }
     }
 }

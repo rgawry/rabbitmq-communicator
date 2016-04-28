@@ -8,6 +8,6 @@ namespace Common
 {
     public class OpenSessionResponse
     {
-        public bool IsOpen { get; set; }
+        public bool IsLogged { get; set; }
     }
 }

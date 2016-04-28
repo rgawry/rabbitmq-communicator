@@ -12,49 +12,36 @@ namespace Server
 {
     public interface IServer
     {
-
+        void ListenForNewSession();
     }
 
     public class Server : IServer
     {
-        private List<string> _rooms;
         private List<string> _users;
 
-        private IConsumer _consumer;
+        string _exchangeName = "session-exchange";
 
-        public Server(IConsumer consumer)
-        {
-            _consumer = consumer;
-        }
-
-        public void ListenForSessionRequest()
-        {
-            _consumer.Consume();
-        }
-
-        private void CheckRequest(OpenSessionRequest request)
+        public void ListenForNewSession()
         {
             var factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            var connection = factory.CreateConnection();
+            var channel = connection.CreateModel();
+            channel.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
+            channel.QueueDeclare("session-request", false, false, false, null);
+            channel.QueueBind("session-request", _exchangeName, "session-request");
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += (sender, args) =>
             {
-                channel.ExchangeDeclare("session-exange", ExchangeType.Direct, false, true, null);
-                channel.QueueDeclare("session-response", false, false, true, null);
-                channel.QueueBind("session-response", "session-exchange", "session-response");
-                var response = new OpenSessionResponse();
-                if (_users.Contains(request.Login))
-                {
-                    response.IsOpen = false;
-                }
-                else
-                {
-                    response.IsOpen = true;
-                    _users.Add(request.Login);
-                    _rooms.Add(request.Room);
-                }
-                var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
-                channel.BasicPublish("session-exchange", "session-response", null, body);
-            }
+                var bodyJson = Encoding.UTF8.GetString(args.Body);
+                var responseMessage = JsonConvert.DeserializeObject<OpenSessionRequest>(bodyJson);
+                var responseToQueueName = (byte[])args.BasicProperties.Headers["response-queue"];
+
+                var response = new OpenSessionResponse { IsLogged = true };
+                var JsonResponse = JsonConvert.SerializeObject(response);
+                var body = Encoding.UTF8.GetBytes(JsonResponse);
+                channel.BasicPublish(_exchangeName, Encoding.UTF8.GetString(responseToQueueName), null, body);
+            };
+            channel.BasicConsume("session-request", true, consumer);
         }
     }
 }
