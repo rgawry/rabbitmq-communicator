@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public interface IServer
+    public interface IServer : IDisposable
     {
         void ListenForNewSession();
     }
@@ -18,14 +18,21 @@ namespace Server
     public class Server : IServer
     {
         private List<string> _users;
+        private string _exchangeName = "session-exchange";
 
-        string _exchangeName = "session-exchange";
+        ConnectionFactory factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
+        IConnection connection;
+        IModel channel;
+
+        public Server()
+        {
+            connection = factory.CreateConnection();
+            channel = connection.CreateModel();
+        }
 
         public void ListenForNewSession()
         {
-            var factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-            var connection = factory.CreateConnection();
-            var channel = connection.CreateModel();
+
             channel.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
             channel.QueueDeclare("session-request", false, false, false, null);
             channel.QueueBind("session-request", _exchangeName, "session-request");
@@ -42,6 +49,12 @@ namespace Server
                 channel.BasicPublish(_exchangeName, Encoding.UTF8.GetString(responseToQueueName), null, body);
             };
             channel.BasicConsume("session-request", true, consumer);
+        }
+
+        public void Dispose()
+        {
+            channel.Dispose();
+            connection.Dispose();
         }
     }
 }

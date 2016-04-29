@@ -10,16 +10,23 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
-    [TestFixture, Timeout(30000)]
+    [TestFixture, Timeout(1000)]
     public class RabbitBusTests
     {
+        IBus rabbitBus = new RabbitMqBus("session-exchange", "session-request");
+        IServer server = new Server.Server();
+
+        [TearDown]
+        public void CleanUp()
+        {
+            rabbitBus.Dispose();
+            server.Dispose();
+        }
+
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
-            IBus rabbitBus = new RabbitMqBus("session-exchange", "session-request");
             var requestData = new OpenSessionRequest { Login = "radek" };
-            IServer server = new Server.Server();
-
             server.ListenForNewSession();
 
             var actualResponse = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
