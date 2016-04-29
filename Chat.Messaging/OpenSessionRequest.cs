@@ -8,6 +8,6 @@ namespace Chat.Messaging
 {
     public class OpenSessionRequest
     {
-        public string Login { get; set; }
+        public string UserName { get; set; }
     }
 }

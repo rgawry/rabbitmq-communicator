@@ -13,56 +13,57 @@ namespace Chat.Messaging
     {
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
-        private static readonly string _responseQueueHeaderKey = "response-queue";
         private ConnectionFactory _factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-
-        IConnection connection;
-        IModel channelConsume;
-        IModel channelProduce;
+        private IConnection _connection;
+        private IModel _channelConsume;
+        private IModel _channelProduce;
 
         public RabbitMqClientBus(string exchangeName, string requestQueueName)
         {
             _exchangeName = exchangeName;
             _requestQueueName = requestQueueName;
-            connection = _factory.CreateConnection();
-            channelConsume = connection.CreateModel();
-            channelProduce = connection.CreateModel();
         }
-        
+
+        public void Init()
+        {
+            _connection = _factory.CreateConnection();
+            _channelConsume = _connection.CreateModel();
+            _channelProduce = _connection.CreateModel();
+        }
+
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
             var result = new TaskCompletionSource<TResponse>();
             var responseQueueName = string.Empty;
 
-            channelConsume.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
-            responseQueueName = channelConsume.QueueDeclare().QueueName;
-            channelConsume.QueueBind(responseQueueName, _exchangeName, responseQueueName);
-            var consumer = new EventingBasicConsumer(channelConsume);
+            _channelConsume.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
+            responseQueueName = _channelConsume.QueueDeclare().QueueName;
+            _channelConsume.QueueBind(responseQueueName, _exchangeName, responseQueueName);
+            var consumer = new EventingBasicConsumer(_channelConsume);
             consumer.Received += (sender, args) =>
             {
                 var bodyJson = Encoding.UTF8.GetString(args.Body);
                 var responseMessage = JsonConvert.DeserializeObject<TResponse>(bodyJson);
                 result.SetResult(responseMessage);
             };
-            channelConsume.BasicConsume(responseQueueName, true, consumer);
+            _channelConsume.BasicConsume(responseQueueName, true, consumer);
 
-            channelProduce.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
-            channelProduce.QueueDeclare(_requestQueueName, false, false, false, null);
-            channelProduce.QueueBind(_requestQueueName, _exchangeName, _requestQueueName);
-            var basicProperties = channelProduce.CreateBasicProperties();
-            basicProperties.Headers = new Dictionary<string, object>();
-            basicProperties.Headers.Add(_responseQueueHeaderKey, responseQueueName);
+            _channelProduce.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
+            _channelProduce.QueueDeclare(_requestQueueName, false, false, false, null);
+            _channelProduce.QueueBind(_requestQueueName, _exchangeName, _requestQueueName);
+            var basicProperties = _channelProduce.CreateBasicProperties();
+            basicProperties.ReplyTo = responseQueueName;
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
-            channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
+            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
 
             return result.Task;
         }
 
         public void Dispose()
         {
-            channelConsume.Dispose();
-            channelProduce.Dispose();
-            connection.Dispose();
+            _channelConsume.Dispose();
+            _channelProduce.Dispose();
+            _connection.Dispose();
         }
     }
 }

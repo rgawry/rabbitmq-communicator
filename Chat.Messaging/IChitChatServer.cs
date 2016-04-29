@@ -13,17 +13,17 @@ namespace Chat.Messaging
 
     public class ChitChatServer : IChitChatServer
     {
-        private IClientBus _bus;
+        private IClientBus _clientBus;
 
-        public ChitChatServer(IClientBus bus)
+        public ChitChatServer(IClientBus clientBus)
         {
-            _bus = bus;
+            _clientBus = clientBus;
         }
 
         public async Task<bool> TryLogin(string userName)
         {
-            var request = new OpenSessionRequest { Login = userName, };
-            var responseTask = await _bus.Request<OpenSessionRequest, OpenSessionResponse>(request);
+            var request = new OpenSessionRequest { UserName = userName, };
+            var responseTask = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
             return responseTask.IsLogged;
         }
     }

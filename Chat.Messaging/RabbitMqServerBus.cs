@@ -11,42 +11,52 @@ namespace Chat.Messaging
 {
     public class RabbitMqServerBus : IServerBus, IDisposable
     {
-        private string _exchangeName = "session-exchange";
-        ConnectionFactory factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-        IConnection connection;
-        IModel channel;
+        private string _exchangeName;
+        private string _requestQueueName;
+        private ConnectionFactory _factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
+        private IConnection _connection;
+        private IModel _channelConsume;
+        private IModel _channelProduce;
 
-        public RabbitMqServerBus()
+        public RabbitMqServerBus(string exchangeName, string requestQueueName)
         {
-            connection = factory.CreateConnection();
-            channel = connection.CreateModel();
+            _exchangeName = exchangeName;
+            _requestQueueName = requestQueueName;
+        }
+
+        public void Init()
+        {
+            _connection = _factory.CreateConnection();
+            _channelConsume = _connection.CreateModel();
+            _channelProduce = _connection.CreateModel();
         }
 
         public void AddHandler(Func<OpenSessionRequest, OpenSessionResponse> handler)
         {
-            channel.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
-            channel.QueueDeclare("session-request", false, false, false, null);
-            channel.QueueBind("session-request", _exchangeName, "session-request");
-            var consumer = new EventingBasicConsumer(channel);
+            _channelProduce.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
+            _channelProduce.QueueDeclare(_requestQueueName, false, false, false, null);
+            _channelProduce.QueueBind(_requestQueueName, _exchangeName, _requestQueueName);
+            var consumer = new EventingBasicConsumer(_channelProduce);
             consumer.Received += (sender, args) =>
             {
                 var bodyJson = Encoding.UTF8.GetString(args.Body);
                 var requestMessage = JsonConvert.DeserializeObject<OpenSessionRequest>(bodyJson);
-                var responseToQueueName = (byte[])args.BasicProperties.Headers["response-queue"];
+                var responseToQueueName = args.BasicProperties.ReplyTo;
 
                 var response = handler(requestMessage);
-                
+
                 var jsonResponse = JsonConvert.SerializeObject(response);
                 var body = Encoding.UTF8.GetBytes(jsonResponse);
-                channel.BasicPublish(_exchangeName, Encoding.UTF8.GetString(responseToQueueName), null, body);
+                _channelProduce.BasicPublish(_exchangeName, responseToQueueName, null, body);
             };
-            channel.BasicConsume("session-request", true, consumer);
+            _channelProduce.BasicConsume(_requestQueueName, true, consumer);
         }
 
         public void Dispose()
         {
-            channel.Dispose();
-            connection.Dispose();
+            _channelConsume.Dispose();
+            _channelProduce.Dispose();
+            _connection.Dispose();
         }
     }
 }
