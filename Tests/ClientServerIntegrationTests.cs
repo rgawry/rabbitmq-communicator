@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Tests
 {
     [TestFixture, Timeout(1000)]
-    public class RabbitBusTests
+    public class ClientServerIntegrationTests
     {
         [Test]
         public async Task ShouldReceiveSentMessage()
@@ -33,7 +33,6 @@ namespace Tests
             using (var rabbitBus = new RabbitMqClientBus("session-exchange", "session-request"))
             using (var serverBus = new RabbitMqServerBus())
             {
-
                 var request1 = new OpenSessionRequest { Login = "login1" };
                 var request2 = new OpenSessionRequest { Login = "login2" };
 
