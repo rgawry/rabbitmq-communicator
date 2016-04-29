@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Chat.Messaging
 {
     public class RabbitMqClientBus : IClientBus, IDisposable
     {

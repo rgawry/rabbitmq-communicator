@@ -7,8 +7,8 @@
     <ProjectGuid>{9D16257B-8E15-4A45-9EC0-95DDADDAF3CF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Common</RootNamespace>
-    <AssemblyName>Common</AssemblyName>
+    <RootNamespace>Chat.Messaging</RootNamespace>
+    <AssemblyName>Chat.Messaging</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

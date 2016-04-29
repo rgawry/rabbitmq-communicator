@@ -1,6 +1,5 @@
-﻿using Common;
+﻿using Chat.Messaging;
 using NUnit.Framework;
-using Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
