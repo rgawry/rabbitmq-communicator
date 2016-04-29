@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerConsoleApp
+namespace Chat.Server
 {
-    class ServerConsoleApp
+    class Program
     {
         static void Main(string[] args)
         {

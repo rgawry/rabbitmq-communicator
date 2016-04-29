@@ -7,8 +7,8 @@
     <ProjectGuid>{0DA32875-6873-4F4D-8FD9-03DDE867FCCC}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServerConsoleApp</RootNamespace>
-    <AssemblyName>ServerConsoleApp</AssemblyName>
+    <RootNamespace>Chat.Server</RootNamespace>
+    <AssemblyName>Chat.Server</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -48,7 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ServerConsoleApp.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

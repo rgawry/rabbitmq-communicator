@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
-    [TestFixture, Timeout(1000)]
+    [TestFixture, Timeout(2000)]
     public class ClientServerIntegrationTests
     {
         [Test]
@@ -18,7 +18,7 @@ namespace Tests
             using (var rabbitBus = new RabbitMqClientBus("session-exchange", "session-request"))
             using (var serverBus = new RabbitMqServerBus())
             {
-                var requestData = new OpenSessionRequest { Login = "radek" };
+                var requestData = new OpenSessionRequest { Login = "login1" };
                 serverBus.AddHandler(o => new OpenSessionResponse { IsLogged = true });
 
                 var actualResponse = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
