@@ -13,9 +13,9 @@ namespace Common
 
     public class ChitChatServer : IChitChatServer
     {
-        private IBus _bus;
+        private IClientBus _bus;
 
-        public ChitChatServer(IBus bus)
+        public ChitChatServer(IClientBus bus)
         {
             _bus = bus;
         }

@@ -11,8 +11,7 @@ namespace ServerConsoleApp
     {
         static void Main(string[] args)
         {
-            IServer server = new Server.Server();
-            server.ListenForNewSession();
+
         }
     }
 }

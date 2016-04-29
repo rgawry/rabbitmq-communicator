@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    public interface IBus : IDisposable
+    public interface IClientBus 
     {
         Task<TResult> Request<TRequest, TResult>(TRequest request);
     }
 
-    public class RabbitMqBus : IBus
+    public class RabbitMqBus : IClientBus, IDisposable
     {
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
@@ -36,7 +36,7 @@ namespace Common
         
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
-            TaskCompletionSource<TResponse> result = new TaskCompletionSource<TResponse>();
+            var result = new TaskCompletionSource<TResponse>();
             var responseQueueName = string.Empty;
 
             channelConsume.ExchangeDeclare(_exchangeName, ExchangeType.Direct);

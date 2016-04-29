@@ -10,26 +10,20 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public interface IServer : IDisposable
+    public class ServerBus : IServerBus, IDisposable
     {
-        void ListenForNewSession();
-    }
-
-    public class Server : IServer
-    {
-        private List<string> _users = new List<string>();
         private string _exchangeName = "session-exchange";
         ConnectionFactory factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
         IConnection connection;
         IModel channel;
 
-        public Server()
+        public ServerBus()
         {
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
         }
 
-        public void ListenForNewSession()
+        public void AddHandler(Func<OpenSessionRequest, OpenSessionResponse> handler)
         {
             channel.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
             channel.QueueDeclare("session-request", false, false, false, null);
@@ -41,16 +35,8 @@ namespace Server
                 var requestMessage = JsonConvert.DeserializeObject<OpenSessionRequest>(bodyJson);
                 var responseToQueueName = (byte[])args.BasicProperties.Headers["response-queue"];
 
-                var response = new OpenSessionResponse();
-                if (!_users.Contains(requestMessage.Login))
-                {
-                    response.IsLogged = true;
-                    _users.Add(requestMessage.Login);
-                }
-                else
-                {
-                    response.IsLogged = false;
-                }
+                var response = handler(requestMessage);
+                
                 var jsonResponse = JsonConvert.SerializeObject(response);
                 var body = Encoding.UTF8.GetBytes(jsonResponse);
                 channel.BasicPublish(_exchangeName, Encoding.UTF8.GetString(responseToQueueName), null, body);
