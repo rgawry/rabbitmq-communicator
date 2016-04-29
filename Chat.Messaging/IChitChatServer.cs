@@ -10,21 +10,4 @@ namespace Chat.Messaging
     {
         Task<bool> TryLogin(string userName);
     }
-
-    public class ChitChatServer : IChitChatServer
-    {
-        private IClientBus _clientBus;
-
-        public ChitChatServer(IClientBus clientBus)
-        {
-            _clientBus = clientBus;
-        }
-
-        public async Task<bool> TryLogin(string userName)
-        {
-            var request = new OpenSessionRequest { UserName = userName, };
-            var responseTask = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
-            return responseTask.IsLogged;
-        }
-    }
 }
