@@ -13,46 +13,43 @@ namespace Tests
     [TestFixture, Timeout(1000)]
     public class RabbitBusTests
     {
-        RabbitMqClientBus rabbitBus = new RabbitMqClientBus("session-exchange", "session-request");
-        RabbitMqServerBus server = new RabbitMqServerBus();
-
-        [TearDown]
-        public void CleanUp()
-        {
-            rabbitBus.Dispose();
-            server.Dispose();
-        }
-
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
-            var requestData = new OpenSessionRequest { Login = "radek" };
-            server.AddHandler(o => new OpenSessionResponse { IsLogged = true });
+            using (var rabbitBus = new RabbitMqClientBus("session-exchange", "session-request"))
+            using (var serverBus = new RabbitMqServerBus())
+            {
+                var requestData = new OpenSessionRequest { Login = "radek" };
+                serverBus.AddHandler(o => new OpenSessionResponse { IsLogged = true });
 
-            var actualResponse = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
+                var actualResponse = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
 
-            Assert.IsTrue(actualResponse.IsLogged);
+                Assert.IsTrue(actualResponse.IsLogged);
+            }
         }
 
         [Test]
         public async Task ShouldMatchRequestWithResponse()
         {
-            var request1 = new OpenSessionRequest { Login = "login1" };
-            var request2 = new OpenSessionRequest { Login = "login2" };
-            var rabbitBus = new RabbitMqClientBus("session-exchange", "session-request");
-            var server = new RabbitMqServerBus();
-
-            server.AddHandler(o =>
+            using (var rabbitBus = new RabbitMqClientBus("session-exchange", "session-request"))
+            using (var serverBus = new RabbitMqServerBus())
             {
-                if(o.Login == "login1") Thread.Sleep(500);
-                return new OpenSessionResponse { IsLogged = o.Login == "login1" ? true : false };
-            });
 
-            var response1 = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(request1);
-            var response2 = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(request2);
+                var request1 = new OpenSessionRequest { Login = "login1" };
+                var request2 = new OpenSessionRequest { Login = "login2" };
 
-            Assert.IsTrue(response1.IsLogged);
-            Assert.IsFalse(response2.IsLogged);
+                serverBus.AddHandler(o =>
+                {
+                    if (o.Login == "login1") Thread.Sleep(500);
+                    return new OpenSessionResponse { IsLogged = o.Login == "login1" ? true : false };
+                });
+
+                var response1 = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(request1);
+                var response2 = await rabbitBus.Request<OpenSessionRequest, OpenSessionResponse>(request2);
+
+                Assert.IsTrue(response1.IsLogged);
+                Assert.IsFalse(response2.IsLogged);
+            }
         }
     }
 }
