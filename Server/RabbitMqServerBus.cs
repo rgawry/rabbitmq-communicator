@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public class ServerBus : IServerBus, IDisposable
+    public class RabbitMqServerBus : IServerBus, IDisposable
     {
         private string _exchangeName = "session-exchange";
         ConnectionFactory factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
         IConnection connection;
         IModel channel;
 
-        public ServerBus()
+        public RabbitMqServerBus()
         {
             connection = factory.CreateConnection();
             channel = connection.CreateModel();

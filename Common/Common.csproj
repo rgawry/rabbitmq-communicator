@@ -48,8 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IBus.cs" />
+    <Compile Include="RabbitMqClientBus.cs" />
     <Compile Include="IChitChatServer.cs" />
+    <Compile Include="IClientBus.cs" />
     <Compile Include="OpenSessionRequest.cs" />
     <Compile Include="OpenSessionResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

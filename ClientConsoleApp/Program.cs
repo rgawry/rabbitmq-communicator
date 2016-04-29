@@ -12,12 +12,7 @@ namespace ClientConsoleApp
     {
         static void Main(string[] args)
         {
-            Task.Factory.StartNew(() =>
-            {
-                new Client.Client(new ChitChatServer(new RabbitMqBus("session-exchange", "session-request"))).Start();
-            });
-
-            while (true) ;
+            
         }
     }
 }

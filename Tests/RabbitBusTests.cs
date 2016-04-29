@@ -13,8 +13,8 @@ namespace Tests
     [TestFixture, Timeout(1000)]
     public class RabbitBusTests
     {
-        RabbitMqBus rabbitBus = new RabbitMqBus("session-exchange", "session-request");
-        Server.ServerBus server = new Server.ServerBus();
+        RabbitMqClientBus rabbitBus = new RabbitMqClientBus("session-exchange", "session-request");
+        RabbitMqServerBus server = new RabbitMqServerBus();
 
         [TearDown]
         public void CleanUp()
@@ -39,8 +39,8 @@ namespace Tests
         {
             var request1 = new OpenSessionRequest { Login = "login1" };
             var request2 = new OpenSessionRequest { Login = "login2" };
-            var rabbitBus = new RabbitMqBus("session-exchange", "session-request");
-            var server = new Server.ServerBus();
+            var rabbitBus = new RabbitMqClientBus("session-exchange", "session-request");
+            var server = new RabbitMqServerBus();
 
             server.AddHandler(o =>
             {

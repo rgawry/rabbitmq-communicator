@@ -9,12 +9,7 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    public interface IClientBus 
-    {
-        Task<TResult> Request<TRequest, TResult>(TRequest request);
-    }
-
-    public class RabbitMqBus : IClientBus, IDisposable
+    public class RabbitMqClientBus : IClientBus, IDisposable
     {
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
@@ -25,7 +20,7 @@ namespace Common
         IModel channelConsume;
         IModel channelProduce;
 
-        public RabbitMqBus(string exchangeName, string requestQueueName)
+        public RabbitMqClientBus(string exchangeName, string requestQueueName)
         {
             _exchangeName = exchangeName;
             _requestQueueName = requestQueueName;
