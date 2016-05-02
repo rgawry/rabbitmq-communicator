@@ -50,10 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bus.cs" />
-    <Compile Include="ChitChatServer.cs" />
     <Compile Include="IServerBus.cs" />
     <Compile Include="RabbitMqClientBus.cs" />
-    <Compile Include="IChitChatServer.cs" />
     <Compile Include="IClientBus.cs" />
     <Compile Include="OpenSessionRequest.cs" />
     <Compile Include="OpenSessionResponse.cs" />
