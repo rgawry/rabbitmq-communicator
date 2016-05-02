@@ -25,7 +25,7 @@ namespace Chat
 
                 var actualResponse = await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
 
-                Assert.IsTrue(actualResponse.IsLogged);
+                Assert.That(actualResponse.IsLogged, Is.True);
             }
         }
 
@@ -56,8 +56,8 @@ namespace Chat
                 var response1 = await clientBus_channel1.Request<OpenSessionRequest, OpenSessionResponse>(request1);
                 var response2 = await clientBus_channel2.Request<OpenSessionRequest, OpenSessionResponse>(request2);
 
-                Assert.IsTrue(response1.IsLogged);
-                Assert.IsFalse(response2.IsLogged);
+                Assert.That(response1.IsLogged, Is.True);
+                Assert.That(response2.IsLogged, Is.False);
             }
         }
     }
