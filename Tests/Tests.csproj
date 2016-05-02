@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientBusServerBusIntegrationTests.cs" />
-    <Compile Include="ServerTests.cs" />
+    <Compile Include="ChatServerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
