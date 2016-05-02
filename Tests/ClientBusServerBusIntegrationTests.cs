@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Chat
 {
     [TestFixture]
-    //[Timeout(2000)]
+    [Timeout(2000)]
     public class ClientBusServerBusIntegrationTests
     {
         [Test]
@@ -34,7 +34,7 @@ namespace Chat
         }
 
         [Test]
-        //[Ignore("how to fail this test")]
+        [Ignore("how to fail this test")]
         public async Task ShouldMatchRequestWithResponse()
         {
             var exchangeName = "session-exchange";
