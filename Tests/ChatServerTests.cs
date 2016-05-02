@@ -9,11 +9,11 @@ namespace Chat
         public void ShouldGivenUserLogIn()
         {
             const string userName = "login1";
-            var server = new ChitChatServer();
+            var chatServer = new ChitChatServer();
             var request = new OpenSessionRequest { UserName = userName };
 
-            Assert.That(server.Handler(request).IsLogged, Is.True);
-            Assert.That(server.Handler(request).IsLogged, Is.False);
+            Assert.That(chatServer.Handler(request).IsLogged, Is.True);
+            Assert.That(chatServer.Handler(request).IsLogged, Is.False);
         }
     }
 }
