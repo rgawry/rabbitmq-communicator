@@ -25,7 +25,7 @@ namespace Chat
                 serverBus.Init();
 
                 var requestData = new OpenSessionRequest { UserName = "login1" };
-                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o => new OpenSessionResponse { IsLogged = true });
+                await serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o => new OpenSessionResponse { IsLogged = true });
 
                 var actualResponse = await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
 
@@ -51,7 +51,7 @@ namespace Chat
                 var request1 = new OpenSessionRequest { UserName = "login1" };
                 var request2 = new OpenSessionRequest { UserName = "login2" };
 
-                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o =>
+                await serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o =>
                 {
                     if (o.UserName == "login1") Thread.Sleep(500);
                     return new OpenSessionResponse { IsLogged = o.UserName == "login1" ? true : false };

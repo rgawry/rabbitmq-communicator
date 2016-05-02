@@ -15,6 +15,6 @@ namespace Chat
         /// Registers listener.
         /// </summary>
         /// <param name="handler">Handler that will be invoked when received message.</param>
-        void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler);
+        Task AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler);
     }
 }
