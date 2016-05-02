@@ -14,7 +14,7 @@ namespace Chat.Messaging
         /// <summary>
         /// Registers listener.
         /// </summary>
-        /// <param name="handler">Handler that will be invoekd when received message.</param>
+        /// <param name="handler">Handler that will be invoked when received message.</param>
         void AddHandler(Func<OpenSessionRequest, OpenSessionResponse> handler);
     }
 }

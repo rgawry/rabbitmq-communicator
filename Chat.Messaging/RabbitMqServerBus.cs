@@ -13,13 +13,14 @@ namespace Chat.Messaging
     {
         private string _exchangeName;
         private string _requestQueueName;
-        private ConnectionFactory _factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
+        private ConnectionFactory _factory;
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
 
         public RabbitMqServerBus(string exchangeName, string requestQueueName)
         {
+            _factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
             _exchangeName = exchangeName;
             _requestQueueName = requestQueueName;
         }
@@ -33,9 +34,6 @@ namespace Chat.Messaging
 
         public void AddHandler(Func<OpenSessionRequest, OpenSessionResponse> handler)
         {
-            _channelProduce.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
-            _channelProduce.QueueDeclare(_requestQueueName, false, false, false, null);
-            _channelProduce.QueueBind(_requestQueueName, _exchangeName, _requestQueueName);
             var consumer = new EventingBasicConsumer(_channelProduce);
             consumer.Received += (sender, args) =>
             {
@@ -49,7 +47,7 @@ namespace Chat.Messaging
                 var body = Encoding.UTF8.GetBytes(jsonResponse);
                 _channelProduce.BasicPublish(_exchangeName, responseToQueueName, null, body);
             };
-            _channelProduce.BasicConsume(_requestQueueName, true, consumer);
+            _channelConsume.BasicConsume(_requestQueueName, true, consumer);
         }
 
         public void Dispose()

@@ -12,12 +12,12 @@ namespace Chat.Messaging
     public interface IClientBus
     {
         /// <summary>
-        /// Sends requests to Server and registers listener to receive response.
+        /// Sends request to Server and returns response.
         /// </summary>
         /// <typeparam name="TRequest">Type of data to be send.</typeparam>
         /// <typeparam name="TResult">Type of data to receive.</typeparam>
         /// <param name="request">Request data to be send.</param>
-        /// <returns></returns>
+        /// <returns>Response</returns>
         Task<TResult> Request<TRequest, TResult>(TRequest request);
     }
 }
