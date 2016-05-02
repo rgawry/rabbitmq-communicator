@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chat.Messaging
+namespace Chat
 {
     public abstract class Bus : IDisposable
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chat.Messaging
+namespace Chat
 {
     /// <summary>
     /// Provides data transportation layer for server application.
