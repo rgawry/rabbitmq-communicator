@@ -12,8 +12,8 @@ namespace Chat
             var chatServer = new ChitChatServer();
             var request = new OpenSessionRequest { UserName = userName };
 
-            Assert.That(chatServer.Handler(request).IsLogged, Is.True);
-            Assert.That(chatServer.Handler(request).IsLogged, Is.False);
+            Assert.That(chatServer.SessionHandler(request).IsLogged, Is.True);
+            Assert.That(chatServer.SessionHandler(request).IsLogged, Is.False);
         }
     }
 }

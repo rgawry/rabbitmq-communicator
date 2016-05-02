@@ -11,7 +11,7 @@ namespace Chat
             _users = new List<string>();
         }
 
-        public OpenSessionResponse Handler(OpenSessionRequest request)
+        public OpenSessionResponse SessionHandler(OpenSessionRequest request)
         {
             var isLogged = false;
             if (!_users.Contains(request.UserName))
