@@ -8,7 +8,7 @@ namespace Chat
     public interface IClientBus
     {
         /// <summary>
-        /// Sends request to Server and returns response.
+        /// Sends request to ChatServer and returns response.
         /// </summary>
         /// <typeparam name="TRequest">Type of data to be send.</typeparam>
         /// <typeparam name="TResult">Type of data to receive.</typeparam>
