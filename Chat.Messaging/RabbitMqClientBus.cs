@@ -9,28 +9,9 @@ using System.Threading.Tasks;
 
 namespace Chat.Messaging
 {
-    public class RabbitMqClientBus : IClientBus, IDisposable
+    public class RabbitMqClientBus : Bus, IClientBus
     {
-        private readonly string _exchangeName;
-        private readonly string _requestQueueName;
-        private ConnectionFactory _factory;
-        private IConnection _connection;
-        private IModel _channelConsume;
-        private IModel _channelProduce;
-
-        public RabbitMqClientBus(string exchangeName, string requestQueueName)
-        {
-            _exchangeName = exchangeName;
-            _requestQueueName = requestQueueName;
-        }
-
-        public void Init()
-        {
-            _factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-            _connection = _factory.CreateConnection();
-            _channelConsume = _connection.CreateModel();
-            _channelProduce = _connection.CreateModel();
-        }
+        public RabbitMqClientBus(string exchangeName, string requestQueueName) : base(exchangeName, requestQueueName) { }
 
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
@@ -54,13 +35,6 @@ namespace Chat.Messaging
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
 
             return result.Task;
-        }
-
-        public void Dispose()
-        {
-            _channelConsume.Dispose();
-            _channelProduce.Dispose();
-            _connection.Dispose();
         }
     }
 }
