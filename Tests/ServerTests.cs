@@ -10,10 +10,10 @@ namespace Chat
         {
             const string userName = "login1";
             var server = new ChitChatServer();
+            var request = new OpenSessionRequest { UserName = userName };
 
-            var req = new Messaging.OpenSessionRequest { UserName = userName };
-            Assert.That(server.Handler(req).IsLogged, Is.True);
-            Assert.That(server.Handler(req).IsLogged, Is.False);
+            Assert.That(server.Handler(request).IsLogged, Is.True);
+            Assert.That(server.Handler(request).IsLogged, Is.False);
         }
     }
 }
