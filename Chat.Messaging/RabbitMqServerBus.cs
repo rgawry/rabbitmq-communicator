@@ -13,13 +13,13 @@ namespace Chat.Messaging
     {
         public RabbitMqServerBus(string exchangeName, string requestQueueName) : base(exchangeName, requestQueueName) { }
 
-        public void AddHandler(Func<OpenSessionRequest, OpenSessionResponse> handler)
+        public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
             var consumer = new EventingBasicConsumer(_channelProduce);
             consumer.Received += (sender, args) =>
             {
                 var bodyJson = Encoding.UTF8.GetString(args.Body);
-                var requestMessage = JsonConvert.DeserializeObject<OpenSessionRequest>(bodyJson);
+                var requestMessage = JsonConvert.DeserializeObject<TRequest>(bodyJson);
                 var responseToQueueName = args.BasicProperties.ReplyTo;
 
                 var response = handler(requestMessage);

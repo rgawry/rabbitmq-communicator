@@ -25,7 +25,7 @@ namespace Tests
                 serverBus.Init();
 
                 var requestData = new OpenSessionRequest { UserName = "login1" };
-                serverBus.AddHandler(o => new OpenSessionResponse { IsLogged = true });
+                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o => new OpenSessionResponse { IsLogged = true });
 
                 var actualResponse = await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
 
@@ -33,8 +33,7 @@ namespace Tests
             }
         }
 
-        [Test]
-        [Ignore("how to fail this test")]
+        [Test, Ignore("how to fail this test")]
         public async Task ShouldMatchRequestWithResponse()
         {
             var exchangeName = "session-exchange";
@@ -49,7 +48,7 @@ namespace Tests
                 var request1 = new OpenSessionRequest { UserName = "login1" };
                 var request2 = new OpenSessionRequest { UserName = "login2" };
 
-                serverBus.AddHandler(o =>
+                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o =>
                 {
                     if (o.UserName == "login1") Thread.Sleep(500);
                     return new OpenSessionResponse { IsLogged = o.UserName == "login1" ? true : false };
