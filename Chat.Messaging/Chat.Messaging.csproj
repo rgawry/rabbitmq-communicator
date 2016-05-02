@@ -7,7 +7,7 @@
     <ProjectGuid>{9D16257B-8E15-4A45-9EC0-95DDADDAF3CF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chat.Messaging</RootNamespace>
+    <RootNamespace>Chat</RootNamespace>
     <AssemblyName>Chat.Messaging</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -20,8 +20,8 @@ namespace Chat.Messaging
             if (string.IsNullOrWhiteSpace(userName)) throw new ArgumentException("userName");
 
             var request = new OpenSessionRequest { UserName = userName, };
-            var responseTask = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
-            return responseTask.IsLogged;
+            var response = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
+            return response.IsLogged;
         }
     }
 }

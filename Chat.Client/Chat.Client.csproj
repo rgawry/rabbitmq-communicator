@@ -7,7 +7,7 @@
     <ProjectGuid>{B511C8CD-A77B-4206-9B20-A1C981D064E8}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chat.Client</RootNamespace>
+    <RootNamespace>Chat</RootNamespace>
     <AssemblyName>Chat.Client</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

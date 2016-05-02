@@ -15,7 +15,7 @@ namespace Chat.Messaging
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
-            var consumer = new EventingBasicConsumer(_channelProduce);
+            var consumer = new EventingBasicConsumer(_channelConsume);
             consumer.Received += (sender, args) =>
             {
                 var bodyJson = Encoding.UTF8.GetString(args.Body);
