@@ -14,7 +14,7 @@ namespace Chat
 
         }
 
-        private void Init()
+        public void Init()
         {
             _users = new List<string>();
             _usersToRoomMap = new Dictionary<string, List<string>>();
