@@ -28,7 +28,7 @@ namespace Chat
             {
                 isLogged = true;
                 _users.Add(request.UserName);
-                AddToDefaultRoom(request.UserName);
+                _usersToRoomMap[DEFAULT_ROOM_NAME].Add(request.UserName);
             }
             return new OpenSessionResponse { IsLogged = isLogged };
         }
@@ -36,11 +36,6 @@ namespace Chat
         public void SwitchRoomHandler(JoinRoomRequest request)
         {
 
-        }
-
-        private void AddToDefaultRoom(string userName)
-        {
-            _usersToRoomMap[DEFAULT_ROOM_NAME].Add(userName);
         }
     }
 }
