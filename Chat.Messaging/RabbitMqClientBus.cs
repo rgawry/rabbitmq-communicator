@@ -23,7 +23,7 @@ namespace Chat
         {
             var result = new TaskCompletionSource<TResponse>();
             var responseQueueName = string.Empty;
-            var consumerKey = "req-res";
+            var consumerKey = GetConsumerKey();
             _channelsConsume.Add(consumerKey, _connection.CreateModel());
 
             responseQueueName = _channelsConsume[consumerKey].QueueDeclare().QueueName;

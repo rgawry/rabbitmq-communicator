@@ -14,7 +14,7 @@ namespace Chat
         {
             await Task.Run(() =>
             {
-                var consumerKey = "req";
+                var consumerKey = GetConsumerKey();
                 _channelsConsume.Add(consumerKey, _connection.CreateModel());
 
                 var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
@@ -32,7 +32,7 @@ namespace Chat
         {
             await Task.Run(() =>
             {
-                var consumerKey = "req-res";
+                var consumerKey = GetConsumerKey();
                 _channelsConsume.Add(consumerKey, _connection.CreateModel());
 
                 var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);

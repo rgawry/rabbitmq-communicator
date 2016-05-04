@@ -38,5 +38,10 @@ namespace Chat
             _channelProduce.Dispose();
             _connection.Dispose();
         }
+
+        protected string GetConsumerKey()
+        {
+            return new Guid().ToString();
+        }
     }
 }
