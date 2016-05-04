@@ -28,8 +28,8 @@ namespace Chat
             {
                 isLogged = true;
                 _users.Add(request.UserName);
+                AddToDefaultRoom(request.UserName);
             }
-            AddToDefaultRoom(request.UserName);
             return new OpenSessionResponse { IsLogged = isLogged };
         }
 
