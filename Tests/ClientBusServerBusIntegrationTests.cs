@@ -29,6 +29,27 @@ namespace Chat
             }
         }
 
+        //[Test]
+        //public async Task ShouldReceiveSentMessage2()
+        //{
+        //    var exchangeName = "session-exchange";
+        //    var queueName = "session-request";
+
+        //    using (var clientBus = new RabbitMqClientBus(exchangeName, queueName))
+        //    using (var serverBus = new RabbitMqServerBus(exchangeName, queueName))
+        //    {
+        //        clientBus.Init();
+        //        serverBus.Init();
+
+        //        var requestData = new JoinRoomRequest { RoomName = "", Token = "login1" };
+        //        await serverBus.AddHandler<JoinRoomRequest>(o => { });
+
+        //        await clientBus.Request(requestData);
+
+
+        //    }
+        //}
+
         [Test]
         [Ignore("how to fail this test")]
         public async Task ShouldMatchRequestWithResponse()

@@ -7,7 +7,7 @@ namespace Chat
         private const string DEFAULT_ROOM_NAME = "default";
 
         private List<string> _users;
-        private Dictionary<string, List<string>> _usersToRoomMap;
+        public Dictionary<string, List<string>> _usersToRoomMap;
 
         public ChitChatServer()
         {
@@ -35,15 +35,15 @@ namespace Chat
 
         public void SwitchRoomHandler(JoinRoomRequest request)
         {
-            var defaultRoomUsers = _usersToRoomMap[DEFAULT_ROOM_NAME];
-            defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(request.Token));
-
-            if (!_usersToRoomMap.ContainsKey(request.RoomName))
-            {
-                _usersToRoomMap.Add(request.RoomName, new List<string>());
-            }
-
+            RemoveUserFromDefaultRoom(request.Token);
+            if (!_usersToRoomMap.ContainsKey(request.RoomName)) _usersToRoomMap.Add(request.RoomName, new List<string>());
             _usersToRoomMap[request.RoomName].Add(request.Token);
+        }
+
+        private void RemoveUserFromDefaultRoom(string token)
+        {
+            var defaultRoomUsers = _usersToRoomMap[DEFAULT_ROOM_NAME];
+            if (defaultRoomUsers.Contains(token)) defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(token));
         }
     }
 }
