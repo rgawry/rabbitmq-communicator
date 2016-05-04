@@ -21,7 +21,6 @@ namespace Chat
         /// </summary>
         /// <typeparam name="TRequest">Type of request.</typeparam>
         /// <param name="request">Request object.</param>
-        /// <returns></returns>
-        Task Request<TRequest>(TRequest request);
+        void Request<TRequest>(TRequest request);
     }
 }

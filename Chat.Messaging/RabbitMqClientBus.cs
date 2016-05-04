@@ -2,7 +2,6 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Threading.Tasks;
-using System;
 
 namespace Chat
 {
@@ -10,13 +9,10 @@ namespace Chat
     {
         public RabbitMqClientBus(string exchangeName, string requestQueueName) : base(exchangeName, requestQueueName) { }
 
-        public async Task Request<TRequest>(TRequest request)
+        public void Request<TRequest>(TRequest request)
         {
-            await Task.Run(() =>
-                {
-                    var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
-                    _channelProduce.BasicPublish(_exchangeName, _requestQueueName, null, body);
-                });
+            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
+            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, null, body);
         }
 
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
