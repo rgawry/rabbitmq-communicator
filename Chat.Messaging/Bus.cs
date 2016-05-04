@@ -41,7 +41,7 @@ namespace Chat
 
         protected string GetConsumerKey()
         {
-            return new Guid().ToString();
+            return Guid.NewGuid().ToString();
         }
     }
 }
