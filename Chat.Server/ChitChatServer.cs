@@ -5,9 +5,11 @@ namespace Chat
     public sealed class ChitChatServer
     {
         private const string DEFAULT_ROOM_NAME = "default";
-
         private List<string> _users;
-        public Dictionary<string, List<string>> _usersToRoomMap;
+        private Dictionary<string, List<string>> _usersToRoomMap;
+
+        public Dictionary<string, List<string>> UsersToRoomMap { get { return _usersToRoomMap; } }
+        public string DefaultRoomName { get { return DEFAULT_ROOM_NAME; } }
 
         public ChitChatServer()
         {
