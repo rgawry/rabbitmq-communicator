@@ -10,11 +10,32 @@ namespace Chat
     {
         public RabbitMqServerBus(string exchangeName, string requestQueueName) : base(exchangeName, requestQueueName) { }
 
+        public async Task AddHandler<TRequest>(Action<TRequest> handler)
+        {
+            await Task.Run(() =>
+            {
+                var consumerKey = "req";
+                _channelsConsume.Add(consumerKey, _connection.CreateModel());
+
+                var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
+                consumer.Received += (sender, args) =>
+                {
+                    var bodyJson = Encoding.UTF8.GetString(args.Body);
+                    var requestMessage = JsonConvert.DeserializeObject<TRequest>(bodyJson);
+
+                    handler(requestMessage);
+                };
+            });
+        }
+
         public async Task AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
             await Task.Run(() =>
             {
-                var consumer = new EventingBasicConsumer(_channelConsume);
+                var consumerKey = "req-res";
+                _channelsConsume.Add(consumerKey, _connection.CreateModel());
+
+                var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
                 consumer.Received += (sender, args) =>
                 {
                     var bodyJson = Encoding.UTF8.GetString(args.Body);
@@ -27,7 +48,7 @@ namespace Chat
                     var body = Encoding.UTF8.GetBytes(jsonResponse);
                     _channelProduce.BasicPublish(_exchangeName, responseToQueueName, null, body);
                 };
-                _channelConsume.BasicConsume(_requestQueueName, true, consumer);
+                _channelsConsume[consumerKey].BasicConsume(_requestQueueName, true, consumer);
             });
         }
     }

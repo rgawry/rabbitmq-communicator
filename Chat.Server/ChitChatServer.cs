@@ -21,5 +21,10 @@ namespace Chat
             }
             return new OpenSessionResponse { IsLogged = isLogged };
         }
+
+        public void RoomHandler(JoinRoomRequest request)
+        {
+
+        }
     }
 }
