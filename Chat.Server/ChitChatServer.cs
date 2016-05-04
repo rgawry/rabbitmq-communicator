@@ -35,7 +35,15 @@ namespace Chat
 
         public void SwitchRoomHandler(JoinRoomRequest request)
         {
+            var defaultRoomUsers = _usersToRoomMap[DEFAULT_ROOM_NAME];
+            defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(request.Token));
 
+            if (!_usersToRoomMap.ContainsKey(request.RoomName))
+            {
+                _usersToRoomMap.Add(request.RoomName, new List<string>());
+            }
+
+            _usersToRoomMap[request.RoomName].Add(request.Token);
         }
     }
 }
