@@ -29,7 +29,7 @@ namespace Chat
                 isLogged = true;
                 _users.Add(request.UserName);
             }
-            DefaultRoomHandler(request.UserName);
+            AddToDefaultRoom(request.UserName);
             return new OpenSessionResponse { IsLogged = isLogged };
         }
 
@@ -38,7 +38,7 @@ namespace Chat
 
         }
 
-        private void DefaultRoomHandler(string userName)
+        private void AddToDefaultRoom(string userName)
         {
             _usersToRoomMap[DEFAULT_ROOM_NAME].Add(userName);
         }
