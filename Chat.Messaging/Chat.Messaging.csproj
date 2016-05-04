@@ -57,6 +57,7 @@
     <Compile Include="OpenSessionResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMqServerBus.cs" />
+    <Compile Include="JoinRoomRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
