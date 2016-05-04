@@ -13,7 +13,7 @@ namespace Chat
         /// <typeparam name="TRequest">Type of request.</typeparam>
         /// <typeparam name="TResult">Type of data to receive.</typeparam>
         /// <param name="request">Request object.</param>
-        /// <returns>Response</returns>
+        /// <returns>Response object.</returns>
         Task<TResult> Request<TRequest, TResult>(TRequest request);
 
         /// <summary>

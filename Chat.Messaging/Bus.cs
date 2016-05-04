@@ -10,7 +10,7 @@ namespace Chat
         protected readonly string _requestQueueName;
         protected ConnectionFactory _factory;
         protected IConnection _connection;
-        protected Dictionary<string,IModel> _channelsConsume;
+        protected Dictionary<string, IModel> _channelsConsume;
         protected IModel _channelProduce;
 
         public Bus(string exchangeName, string requestQueueName)
@@ -31,9 +31,9 @@ namespace Chat
 
         public void Dispose()
         {
-            foreach (var consume in _channelsConsume)
+            foreach (var consumer in _channelsConsume)
             {
-                consume.Value.Dispose();
+                consumer.Value.Dispose();
             }
             _channelProduce.Dispose();
             _connection.Dispose();
