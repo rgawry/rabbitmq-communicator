@@ -50,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bus.cs" />
     <Compile Include="IServerBus.cs" />
     <Compile Include="RabbitMqClientBus.cs" />
     <Compile Include="IClientBus.cs" />

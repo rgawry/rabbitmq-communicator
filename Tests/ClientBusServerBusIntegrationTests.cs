@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Chat
 {
     [TestFixture]
-    [Timeout(2000)]
+    [Timeout(1000)]
     public class ClientBusServerBusIntegrationTests
     {
         [Test]
