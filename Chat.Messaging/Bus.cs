@@ -29,14 +29,23 @@ namespace Chat
             _channelProduce = _connection.CreateModel();
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                foreach (var consumer in _channelsConsume)
+                {
+                    consumer.Value.Dispose();
+                }
+                _channelProduce.Dispose();
+                _connection.Dispose();
+            }
+        }
+
         public void Dispose()
         {
-            foreach (var consumer in _channelsConsume)
-            {
-                consumer.Value.Dispose();
-            }
-            _channelProduce.Dispose();
-            _connection.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected string GetConsumerKey()
