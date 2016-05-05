@@ -10,8 +10,7 @@ namespace Chat
 {
     public class RabbitMqClientBus : IClientBus, IDisposable
     {
-        private string _tmpQueue;
-
+        private string _responseQueueName;
         protected readonly string _exchangeName;
         protected readonly string _requestQueueName;
         protected ConnectionFactory _factory;
@@ -31,7 +30,7 @@ namespace Chat
             _connection = _factory.CreateConnection();
             _channelsConsume = new Dictionary<string, IModel>();
             _channelProduce = _connection.CreateModel();
-            _tmpQueue = _channelProduce.QueueDeclare().QueueName;
+            _responseQueueName = _channelProduce.QueueDeclare().QueueName;
         }
 
         public void Request<TRequest>(TRequest request)
@@ -43,12 +42,10 @@ namespace Chat
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
             var result = new TaskCompletionSource<TResponse>();
-            var responseQueueName = string.Empty;
             var consumerKey = GetConsumerKey();
             _channelsConsume.Add(consumerKey, _connection.CreateModel());
 
-            responseQueueName = _tmpQueue; //_channelsConsume[consumerKey].QueueDeclare().QueueName;
-            _channelsConsume[consumerKey].QueueBind(responseQueueName, _exchangeName, responseQueueName);
+            _channelsConsume[consumerKey].QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
             var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
             consumer.Received += (sender, args) =>
             {
@@ -56,10 +53,10 @@ namespace Chat
                 var responseMessage = JsonConvert.DeserializeObject<TResponse>(bodyJson);
                 result.SetResult(responseMessage);
             };
-            _channelsConsume[consumerKey].BasicConsume(responseQueueName, true, consumer);
+            _channelsConsume[consumerKey].BasicConsume(_responseQueueName, true, consumer);
 
             var basicProperties = _channelProduce.CreateBasicProperties();
-            basicProperties.ReplyTo = responseQueueName;
+            basicProperties.ReplyTo = _responseQueueName;
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
 

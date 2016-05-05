@@ -45,6 +45,7 @@ namespace Chat
 
                 handler(requestMessage);
             };
+            _channelsConsume[consumerKey].BasicConsume(_requestQueueName, true, consumer);
         }
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
