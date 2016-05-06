@@ -17,7 +17,7 @@ namespace Chat
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
-        private ConcurrentDictionary<string, Response> _taskCollection = new ConcurrentDictionary<string, Response>();
+        private ConcurrentDictionary<string, TaskCompletionSourceWrapper> _taskCollection = new ConcurrentDictionary<string, TaskCompletionSourceWrapper>();
 
         public RabbitMqClientBus(string exchangeName, string requestQueueName)
         {
@@ -51,8 +51,7 @@ namespace Chat
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
 
-            var responseHandler = Response.Create<TResponse>();
-
+            var responseHandler = TaskCompletionSourceWrapper.Create<TResponse>();
             _taskCollection.TryAdd(correlationId, responseHandler);
 
             return ((TaskCompletionSource<TResponse>)responseHandler.Tcs).Task;
@@ -67,9 +66,9 @@ namespace Chat
                 var responseTypeName = Type.GetType(args.BasicProperties.Type);
                 var bodyJson = Encoding.UTF8.GetString(args.Body);
                 var responseMessage = JsonConvert.DeserializeObject(bodyJson, responseTypeName);
-                var key = args.BasicProperties.CorrelationId;
-                var responseHandler = default(Response);
-                _taskCollection.TryRemove(key, out responseHandler);
+                var correlationId = args.BasicProperties.CorrelationId;
+                var responseHandler = default(TaskCompletionSourceWrapper);
+                _taskCollection.TryRemove(correlationId, out responseHandler);
                 if (responseHandler == null) return;
                 responseHandler.OnMessage(responseMessage);
             };
@@ -88,15 +87,15 @@ namespace Chat
             _connection.Dispose();
         }
 
-        class Response
+        class TaskCompletionSourceWrapper
         {
             public object Tcs { get; private set; }
             public Action<object> OnMessage { get; private set; }
             public Action OnTimeout { get; private set; }
 
-            public static Response Create<TResponse>()
+            public static TaskCompletionSourceWrapper Create<TResponse>()
             {
-                var result = new Response();
+                var result = new TaskCompletionSourceWrapper();
                 var tcs = new TaskCompletionSource<TResponse>();
                 result.OnMessage = it => tcs.SetResult((TResponse)it);
                 result.OnTimeout = () => tcs.SetException(new Exception());

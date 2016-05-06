@@ -4,19 +4,18 @@ using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat
 {
-    public class RabbitMqServerBus : IServerBus, IDisposable
+    public sealed class RabbitMqServerBus : IServerBus, IDisposable
     {
-        protected readonly string _exchangeName;
-        protected readonly string _requestQueueName;
-        protected ConnectionFactory _factory;
-        protected IConnection _connection;
-        protected Dictionary<string, IModel> _channelsConsume;
-        protected IModel _channelProduce;
+        private readonly string _exchangeName;
+        private readonly string _requestQueueName;
+        private ConnectionFactory _factory;
+        private IConnection _connection;
+        private Dictionary<string, IModel> _channelsConsume;
+        private IModel _channelProduce;
 
         public RabbitMqServerBus(string exchangeName, string requestQueueName)
         {
@@ -75,23 +74,14 @@ namespace Chat
             _channelsConsume[consumerKey].BasicConsume(_requestQueueName, true, consumer);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                foreach (var consumer in _channelsConsume)
-                {
-                    consumer.Value.Dispose();
-                }
-                _channelProduce.Dispose();
-                _connection.Dispose();
-            }
-        }
-
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            foreach (var consumer in _channelsConsume)
+            {
+                consumer.Value.Dispose();
+            }
+            _channelProduce.Dispose();
+            _connection.Dispose();
         }
 
         private string GetGuid()
