@@ -66,7 +66,10 @@ namespace Chat
 
                     var jsonResponse = JsonConvert.SerializeObject(response);
                     var body = Encoding.UTF8.GetBytes(jsonResponse);
-                    _channelProduce.BasicPublish(_exchangeName, responseToQueueName, null, body);
+                    var replyProperties = _channelProduce.CreateBasicProperties();
+                    replyProperties.Type = typeof(TResponse).ToString();
+                    replyProperties.CorrelationId = args.BasicProperties.CorrelationId;
+                    _channelProduce.BasicPublish(_exchangeName, responseToQueueName, replyProperties, body);
                 });
             };
             _channelsConsume[consumerKey].BasicConsume(_requestQueueName, true, consumer);
