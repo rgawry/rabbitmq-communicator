@@ -42,9 +42,10 @@ namespace Chat
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
             var result = new TaskCompletionSource<TResponse>();
-            var consumerKey = GetConsumerKey();
+            var consumerKey = GetGuid();
             _channelsConsume.Add(consumerKey, _connection.CreateModel());
 
+            _channelsConsume[consumerKey].BasicQos(0, 1, false);
             _channelsConsume[consumerKey].QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
             var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
             consumer.Received += (sender, args) =>
@@ -82,7 +83,7 @@ namespace Chat
             GC.SuppressFinalize(this);
         }
 
-        private string GetConsumerKey()
+        private string GetGuid()
         {
             return Guid.NewGuid().ToString();
         }

@@ -34,7 +34,7 @@ namespace Chat
 
         public void AddHandler<TRequest>(Action<TRequest> handler)
         {
-            var consumerKey = GetConsumerKey();
+            var consumerKey = GetGuid();
             _channelsConsume.Add(consumerKey, _connection.CreateModel());
 
             var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
@@ -50,7 +50,7 @@ namespace Chat
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
-            var consumerKey = GetConsumerKey();
+            var consumerKey = GetGuid();
             _channelsConsume.Add(consumerKey, _connection.CreateModel());
 
             var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
@@ -91,7 +91,7 @@ namespace Chat
             GC.SuppressFinalize(this);
         }
 
-        private string GetConsumerKey()
+        private string GetGuid()
         {
             return Guid.NewGuid().ToString();
         }
