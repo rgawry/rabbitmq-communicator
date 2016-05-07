@@ -12,15 +12,17 @@ namespace Chat
     {
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
+        private IMessageSerializer _messageSerializer;
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
 
-        public RabbitMqServerBus(string exchangeName, string requestQueueName, IConnection connection)
+        public RabbitMqServerBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
         {
             _exchangeName = exchangeName;
             _requestQueueName = requestQueueName;
             _connection = connection;
+            _messageSerializer = messageSerializer;
         }
 
         public void Init()
@@ -36,9 +38,7 @@ namespace Chat
             {
                 Task.Run(() =>
                 {
-                    var bodyJson = Encoding.UTF8.GetString(args.Body);
-                    var requestMessage = JsonConvert.DeserializeObject<TRequest>(bodyJson);
-
+                    var requestMessage = _messageSerializer.Deserialize<TRequest>(args.Body);
                     handler(requestMessage);
                 });
             };
@@ -52,14 +52,12 @@ namespace Chat
             {
                 Task.Run(() =>
                 {
-                    var bodyJson = Encoding.UTF8.GetString(args.Body);
-                    var requestMessage = JsonConvert.DeserializeObject<TRequest>(bodyJson);
+                    var requestMessage = _messageSerializer.Deserialize<TRequest>(args.Body);
                     var responseToQueueName = args.BasicProperties.ReplyTo;
 
                     var response = handler(requestMessage);
 
-                    var jsonResponse = JsonConvert.SerializeObject(response);
-                    var body = Encoding.UTF8.GetBytes(jsonResponse);
+                    var body = _messageSerializer.Serialize(response);
                     var replyProperties = _channelProduce.CreateBasicProperties();
                     replyProperties.Type = typeof(TResponse).ToString();
                     replyProperties.CorrelationId = args.BasicProperties.CorrelationId;

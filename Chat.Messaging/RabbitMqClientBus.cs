@@ -13,16 +13,18 @@ namespace Chat
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
         private string _responseQueueName;
+        private IMessageSerializer _messageSerializer;
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
         private ConcurrentDictionary<string, TaskCompletionSourceWrapper> _taskCollection = new ConcurrentDictionary<string, TaskCompletionSourceWrapper>();
 
-        public RabbitMqClientBus(string exchangeName, string requestQueueName, IConnection connection)
+        public RabbitMqClientBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
         {
             _exchangeName = exchangeName;
             _requestQueueName = requestQueueName;
             _connection = connection;
+            _messageSerializer = messageSerializer;
         }
 
         public void Init()
@@ -35,7 +37,7 @@ namespace Chat
 
         public void Request<TRequest>(TRequest request)
         {
-            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
+            var body = _messageSerializer.Serialize(request);
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, null, body);
         }
 
@@ -46,7 +48,8 @@ namespace Chat
             var basicProperties = _channelProduce.CreateBasicProperties();
             basicProperties.ReplyTo = _responseQueueName;
             basicProperties.CorrelationId = correlationId;
-            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
+
+            var body = _messageSerializer.Serialize(request);
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
 
             var responseHandler = TaskCompletionSourceWrapper.Create<TResponse>();
@@ -61,9 +64,8 @@ namespace Chat
             var consumer = new EventingBasicConsumer(_channelConsume);
             consumer.Received += (sender, args) =>
             {
-                var responseTypeName = Type.GetType(args.BasicProperties.Type);
-                var bodyJson = Encoding.UTF8.GetString(args.Body);
-                var responseMessage = JsonConvert.DeserializeObject(bodyJson, responseTypeName);
+                var responseType = Type.GetType(args.BasicProperties.Type);
+                var responseMessage = _messageSerializer.Deserialize(args.Body, responseType);
                 var correlationId = args.BasicProperties.CorrelationId;
                 var responseHandler = default(TaskCompletionSourceWrapper);
                 _taskCollection.TryRemove(correlationId, out responseHandler);

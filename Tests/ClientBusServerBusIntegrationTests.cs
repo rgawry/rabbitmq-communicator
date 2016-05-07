@@ -6,21 +6,22 @@ using System.Threading.Tasks;
 namespace Chat
 {
     [TestFixture]
-    [Timeout(2000)]
+    //[Timeout(2000)]
     public class ClientBusServerBusIntegrationTests
     {
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
             var config = new Configuration();
+            var messageSerializer = new JsonMessageSerializer();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
             var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
             var connectionClient = connectionFactory.CreateConnection();
             var connectionServer = connectionFactory.CreateConnection();
 
-            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient))
-            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer))
+            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
+            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
             {
                 clientBus.Init();
                 serverBus.Init();
@@ -38,14 +39,15 @@ namespace Chat
         public async Task ShouldMatchRequestWithResponse()
         {
             var config = new Configuration();
+            var messageSerializer = new JsonMessageSerializer();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
             var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
             var connectionClient = connectionFactory.CreateConnection();
             var connectionServer = connectionFactory.CreateConnection();
 
-            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient))
-            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer))
+            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
+            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
             {
                 clientBus.Init();
                 serverBus.Init();

@@ -52,7 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="IMessageSerializer.cs" />
     <Compile Include="IServerBus.cs" />
+    <Compile Include="JsonMessageSerializer.cs" />
     <Compile Include="RabbitMqClientBus.cs" />
     <Compile Include="IClientBus.cs" />
     <Compile Include="OpenSessionRequest.cs" />
