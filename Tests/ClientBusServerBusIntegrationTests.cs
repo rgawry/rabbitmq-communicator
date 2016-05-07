@@ -7,7 +7,7 @@ using System.Configuration;
 namespace Chat
 {
     [TestFixture]
-    //[Timeout(1000)]
+    [Timeout(1000)]
     public class ClientBusServerBusIntegrationTests
     {
         [Test]
