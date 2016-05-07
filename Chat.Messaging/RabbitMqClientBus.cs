@@ -10,25 +10,23 @@ namespace Chat
 {
     public sealed class RabbitMqClientBus : IClientBus, IDisposable
     {
-        private string _responseQueueName;
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
-        private ConnectionFactory _factory;
+        private string _responseQueueName;
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
         private ConcurrentDictionary<string, TaskCompletionSourceWrapper> _taskCollection = new ConcurrentDictionary<string, TaskCompletionSourceWrapper>();
 
-        public RabbitMqClientBus(string exchangeName, string requestQueueName)
+        public RabbitMqClientBus(string exchangeName, string requestQueueName, IConnection connection)
         {
             _exchangeName = exchangeName;
             _requestQueueName = requestQueueName;
+            _connection = connection;
         }
 
         public void Init()
         {
-            _factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-            _connection = _factory.CreateConnection();
             _channelConsume = _connection.CreateModel();
             _channelProduce = _connection.CreateModel();
             _responseQueueName = _channelProduce.QueueDeclare().QueueName;

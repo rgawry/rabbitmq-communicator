@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
+using RabbitMQ.Client;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Configuration;
 
 namespace Chat
 {
@@ -11,11 +13,15 @@ namespace Chat
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
+            var config = new Configuration();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
+            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
+            var connectionClient = connectionFactory.CreateConnection();
+            var connectionServer = connectionFactory.CreateConnection();
 
-            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName))
-            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName))
+            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient))
+            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer))
             {
                 clientBus.Init();
                 serverBus.Init();
@@ -32,11 +38,15 @@ namespace Chat
         [Test]
         public async Task ShouldMatchRequestWithResponse()
         {
+            var config = new Configuration();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
+            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
+            var connectionClient = connectionFactory.CreateConnection();
+            var connectionServer = connectionFactory.CreateConnection();
 
-            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName))
-            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName))
+            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient))
+            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer))
             {
                 clientBus.Init();
                 serverBus.Init();

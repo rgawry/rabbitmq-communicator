@@ -17,16 +17,15 @@ namespace Chat
         private Dictionary<string, IModel> _channelsConsume;
         private IModel _channelProduce;
 
-        public RabbitMqServerBus(string exchangeName, string requestQueueName)
+        public RabbitMqServerBus(string exchangeName, string requestQueueName, IConnection connection)
         {
             _exchangeName = exchangeName;
             _requestQueueName = requestQueueName;
+            _connection = connection;
         }
 
         public void Init()
         {
-            _factory = new ConnectionFactory() { HostName = "10.48.13.111", Port = 5672 };
-            _connection = _factory.CreateConnection();
             _channelsConsume = new Dictionary<string, IModel>();
             _channelProduce = _connection.CreateModel();
         }
