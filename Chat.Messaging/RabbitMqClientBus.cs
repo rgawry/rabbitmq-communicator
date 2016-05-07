@@ -2,12 +2,17 @@
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat
 {
     public sealed class RabbitMqClientBus : IClientBus, IDisposable
     {
+        private const int DEFAULT_TIMEOUT_VALUE = 5;
+        
+        private CancellationTokenSource _cancelationTokenSource;
+        private CancellationToken _cancelationToken;
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
         private string _responseQueueName;
@@ -19,6 +24,8 @@ namespace Chat
         private EventHandler<BasicDeliverEventArgs> _handler;
         private ConcurrentDictionary<string, TaskCompletionSourceWrapper> _taskCollection = new ConcurrentDictionary<string, TaskCompletionSourceWrapper>();
 
+        public int TimeoutValue { get; set; }
+
         public RabbitMqClientBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
         {
             _exchangeName = exchangeName;
@@ -29,10 +36,14 @@ namespace Chat
 
         public void Init()
         {
+            TimeoutValue = DEFAULT_TIMEOUT_VALUE;
             _channelConsume = _connection.CreateModel();
             _channelProduce = _connection.CreateModel();
             _responseQueueName = _channelProduce.QueueDeclare().QueueName;
             BindToResponseQueue();
+            _cancelationTokenSource = new CancellationTokenSource();
+            _cancelationToken = _cancelationTokenSource.Token;
+            Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
         }
 
         public void Request<TRequest>(TRequest request)
@@ -69,7 +80,7 @@ namespace Chat
                 var correlationId = args.BasicProperties.CorrelationId;
                 var responseHandler = default(TaskCompletionSourceWrapper);
                 _taskCollection.TryRemove(correlationId, out responseHandler);
-                if (responseHandler == null) return;
+                if (responseHandler == null || responseHandler.Timout) return;
                 responseHandler.OnMessage(responseMessage);
             };
             _consumer.Received += _handler;
@@ -81,9 +92,34 @@ namespace Chat
             return Guid.NewGuid().ToString();
         }
 
+        private async Task ScanForTimeout()
+        {
+            while (true)
+            {
+                foreach (var task in _taskCollection)
+                {
+                    if (IsTimeout(task.Value.Created))
+                    {
+                        task.Value.OnTimeout();
+                        task.Value.Timout = true;
+                    }
+                }
+                if (_cancelationToken.IsCancellationRequested) break;
+                await Task.Delay(500);
+            }
+        }
+
+        private bool IsTimeout(DateTime created)
+        {
+            var result = created.AddSeconds(TimeoutValue) < DateTime.Now;
+            return result;
+        }
+
         public void Dispose()
         {
-            _consumer.Received -= _handler;
+            _cancelationTokenSource.Cancel();
+            _cancelationTokenSource.Dispose();
+            if (_consumer != null) _consumer.Received -= _handler;
             _channelConsume.Dispose();
             _channelProduce.Dispose();
             _connection.Dispose();
@@ -94,13 +130,16 @@ namespace Chat
             public object Tcs { get; private set; }
             public Action<object> OnMessage { get; private set; }
             public Action OnTimeout { get; private set; }
+            public DateTime Created { get; private set; }
+            public bool Timout { get; set; }
 
             public static TaskCompletionSourceWrapper Create<TResponse>()
             {
                 var result = new TaskCompletionSourceWrapper();
+                result.Created = DateTime.Now;
                 var tcs = new TaskCompletionSource<TResponse>();
-                result.OnMessage = res => tcs.SetResult((TResponse)res);
-                result.OnTimeout = () => tcs.SetException(new TimeoutException());
+                result.OnMessage = res => tcs.TrySetResult((TResponse)res);
+                result.OnTimeout = () => tcs.TrySetException(new TimeoutException());
                 result.Tcs = tcs;
                 return result;
             }

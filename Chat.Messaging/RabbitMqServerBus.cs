@@ -77,8 +77,8 @@ namespace Chat
 
         public void Dispose()
         {
-            _consumerRequest.Received -= _handlerRequest;
-            _consumerRequestResponse.Received -= _handlerRequestResponse;
+            if (_consumerRequest != null) _consumerRequest.Received -= _handlerRequest;
+            if (_consumerRequestResponse != null) _consumerRequestResponse.Received -= _handlerRequestResponse;
             _channelConsume.Dispose();
             _channelProduce.Dispose();
             _connection.Dispose();

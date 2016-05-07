@@ -1,12 +1,13 @@
 ﻿using NUnit.Framework;
 using RabbitMQ.Client;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat
 {
     [TestFixture]
-    //[Timeout(2000)]
+    [Timeout(1000)]
     public class ClientBusServerBusIntegrationTests
     {
         [Test]
@@ -51,7 +52,7 @@ namespace Chat
             {
                 clientBus.Init();
                 serverBus.Init();
-
+                
                 var request1 = new OpenSessionRequest { UserName = "login1" };
                 var request2 = new OpenSessionRequest { UserName = "login2" };
 
@@ -69,6 +70,41 @@ namespace Chat
                 Assert.That(response1AsTask.Result.IsLogged, Is.True);
                 Assert.That(response2AsTask.Result.IsLogged, Is.False);
             }
+        }
+
+        [Test]
+        [Timeout(3000)]
+        public void ShouldTimeout()
+        {
+            AsyncTestDelegate testDelegate = async () =>
+            {
+                var config = new Configuration();
+                var messageSerializer = new JsonMessageSerializer();
+                var exchangeName = "session-exchange";
+                var queueName = "session-request";
+                var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
+                var connectionClient = connectionFactory.CreateConnection();
+                var connectionServer = connectionFactory.CreateConnection();
+
+                using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
+                using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
+                {
+                    clientBus.Init();
+                    serverBus.Init();
+
+                    clientBus.TimeoutValue = 1;
+
+                    var requestData = new OpenSessionRequest { UserName = "login1" };
+                    serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o =>
+                    {
+                        Thread.Sleep(2000);
+                        return new OpenSessionResponse { IsLogged = true };
+                    });
+
+                    await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(requestData);
+                };
+            };
+            Assert.That(testDelegate, Throws.TypeOf<TimeoutException>());
         }
     }
 }
