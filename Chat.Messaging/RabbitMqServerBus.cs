@@ -70,11 +70,6 @@ namespace Chat
             _channelConsume.BasicConsume(_requestQueueName, true, _consumerRequestResponse);
         }
 
-        private string GetGuid()
-        {
-            return Guid.NewGuid().ToString();
-        }
-
         public void Dispose()
         {
             if (_consumerRequest != null) _consumerRequest.Received -= _handlerRequest;

@@ -54,7 +54,7 @@ namespace Chat
 
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
-            var correlationId = GetGuid();
+            var correlationId = Guid.NewGuid().ToString();
 
             var basicProperties = _channelProduce.CreateBasicProperties();
             basicProperties.ReplyTo = _responseQueueName;
@@ -85,11 +85,6 @@ namespace Chat
             };
             _consumer.Received += _handler;
             _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
-        }
-
-        private string GetGuid()
-        {
-            return Guid.NewGuid().ToString();
         }
 
         private async Task ScanForTimeout()
