@@ -14,7 +14,7 @@ namespace Chat
         private readonly string _requestQueueName;
         private ConnectionFactory _factory;
         private IConnection _connection;
-        private Dictionary<string, IModel> _channelsConsume;
+        private IModel _channelConsume;
         private IModel _channelProduce;
 
         public RabbitMqServerBus(string exchangeName, string requestQueueName, IConnection connection)
@@ -26,32 +26,29 @@ namespace Chat
 
         public void Init()
         {
-            _channelsConsume = new Dictionary<string, IModel>();
+            _channelConsume = _connection.CreateModel();
             _channelProduce = _connection.CreateModel();
         }
 
         public void AddHandler<TRequest>(Action<TRequest> handler)
         {
-            var consumerKey = GetGuid();
-            _channelsConsume.Add(consumerKey, _connection.CreateModel());
-
-            var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
+            var consumer = new EventingBasicConsumer(_channelConsume);
             consumer.Received += (sender, args) =>
             {
-                var bodyJson = Encoding.UTF8.GetString(args.Body);
-                var requestMessage = JsonConvert.DeserializeObject<TRequest>(bodyJson);
+                Task.Run(() =>
+                {
+                    var bodyJson = Encoding.UTF8.GetString(args.Body);
+                    var requestMessage = JsonConvert.DeserializeObject<TRequest>(bodyJson);
 
-                handler(requestMessage);
+                    handler(requestMessage);
+                });
             };
-            _channelsConsume[consumerKey].BasicConsume(_requestQueueName, true, consumer);
+            _channelConsume.BasicConsume(_requestQueueName, true, consumer);
         }
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
-            var consumerKey = GetGuid();
-            _channelsConsume.Add(consumerKey, _connection.CreateModel());
-
-            var consumer = new EventingBasicConsumer(_channelsConsume[consumerKey]);
+            var consumer = new EventingBasicConsumer(_channelConsume);
             consumer.Received += (sender, args) =>
             {
                 Task.Run(() =>
@@ -70,15 +67,12 @@ namespace Chat
                     _channelProduce.BasicPublish(_exchangeName, responseToQueueName, replyProperties, body);
                 });
             };
-            _channelsConsume[consumerKey].BasicConsume(_requestQueueName, true, consumer);
+            _channelConsume.BasicConsume(_requestQueueName, true, consumer);
         }
 
         public void Dispose()
         {
-            foreach (var consumer in _channelsConsume)
-            {
-                consumer.Value.Dispose();
-            }
+            _channelConsume.Dispose();
             _channelProduce.Dispose();
             _connection.Dispose();
         }
