@@ -67,16 +67,16 @@ namespace Chat
             _channelConsume.BasicConsume(_requestQueueName, true, consumer);
         }
 
+        private string GetGuid()
+        {
+            return Guid.NewGuid().ToString();
+        }
+
         public void Dispose()
         {
             _channelConsume.Dispose();
             _channelProduce.Dispose();
             _connection.Dispose();
-        }
-
-        private string GetGuid()
-        {
-            return Guid.NewGuid().ToString();
         }
     }
 }

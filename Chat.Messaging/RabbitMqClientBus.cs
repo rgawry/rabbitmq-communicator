@@ -97,8 +97,8 @@ namespace Chat
             {
                 var result = new TaskCompletionSourceWrapper();
                 var tcs = new TaskCompletionSource<TResponse>();
-                result.OnMessage = it => tcs.SetResult((TResponse)it);
-                result.OnTimeout = () => tcs.SetException(new Exception());
+                result.OnMessage = res => tcs.SetResult((TResponse)res);
+                result.OnTimeout = () => tcs.SetException(new TimeoutException());
                 result.Tcs = tcs;
                 return result;
             }
