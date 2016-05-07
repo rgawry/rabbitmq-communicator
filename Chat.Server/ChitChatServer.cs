@@ -4,22 +4,15 @@ namespace Chat
 {
     public sealed class ChitChatServer
     {
-        private const string DEFAULT_ROOM_NAME = "default";
-        private List<string> _users;
-        private Dictionary<string, List<string>> _usersToRoomMap;
-        public Dictionary<string, List<string>> UsersToRoomMap { get { return _usersToRoomMap; } }
-        public string DefaultRoomName { get { return DEFAULT_ROOM_NAME; } }
+        private List<string> _users = new List<string>();
+        private Dictionary<string, List<string>> _usersInRooms = new Dictionary<string, List<string>>();
 
-        public ChitChatServer()
-        {
-
-        }
+        public Dictionary<string, List<string>> UsersInRooms { get { return _usersInRooms; } }
+        public string DefaultRoomName { get { return "default"; } }
 
         public void Init()
         {
-            _users = new List<string>();
-            _usersToRoomMap = new Dictionary<string, List<string>>();
-            _usersToRoomMap.Add(DEFAULT_ROOM_NAME, new List<string>());
+            _usersInRooms.Add(DefaultRoomName, new List<string>());
         }
 
         public OpenSessionResponse SessionHandler(OpenSessionRequest request)
@@ -29,7 +22,7 @@ namespace Chat
             {
                 isLogged = true;
                 _users.Add(request.UserName);
-                _usersToRoomMap[DEFAULT_ROOM_NAME].Add(request.UserName);
+                _usersInRooms[DefaultRoomName].Add(request.UserName);
             }
             return new OpenSessionResponse { IsLogged = isLogged };
         }
@@ -37,13 +30,13 @@ namespace Chat
         public void SwitchRoomHandler(JoinRoomRequest request)
         {
             RemoveUserFromDefaultRoom(request.Token);
-            if (!_usersToRoomMap.ContainsKey(request.RoomName)) _usersToRoomMap.Add(request.RoomName, new List<string>());
-            _usersToRoomMap[request.RoomName].Add(request.Token);
+            if (!_usersInRooms.ContainsKey(request.RoomName)) _usersInRooms.Add(request.RoomName, new List<string>());
+            _usersInRooms[request.RoomName].Add(request.Token);
         }
 
         private void RemoveUserFromDefaultRoom(string token)
         {
-            var defaultRoomUsers = _usersToRoomMap[DEFAULT_ROOM_NAME];
+            var defaultRoomUsers = _usersInRooms[DefaultRoomName];
             if (defaultRoomUsers.Contains(token)) defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(token));
         }
     }

@@ -15,7 +15,7 @@ namespace Chat
 
             Assert.That(chatServer.SessionHandler(request).IsLogged, Is.True);
             Assert.That(chatServer.SessionHandler(request).IsLogged, Is.False);
-            Assert.That(chatServer.UsersToRoomMap[chatServer.DefaultRoomName].Contains(request.UserName), Is.True);
+            Assert.That(chatServer.UsersInRooms[chatServer.DefaultRoomName].Contains(request.UserName), Is.True);
         }
 
         [Test]
@@ -27,8 +27,8 @@ namespace Chat
 
             chatServer.SwitchRoomHandler(request);
 
-            Assert.That(!chatServer.UsersToRoomMap[chatServer.DefaultRoomName].Contains(request.Token), Is.True);
-            Assert.That(chatServer.UsersToRoomMap[request.RoomName].Contains(request.Token), Is.True);
+            Assert.That(!chatServer.UsersInRooms[chatServer.DefaultRoomName].Contains(request.Token), Is.True);
+            Assert.That(chatServer.UsersInRooms[request.RoomName].Contains(request.Token), Is.True);
         }
     }
 }
