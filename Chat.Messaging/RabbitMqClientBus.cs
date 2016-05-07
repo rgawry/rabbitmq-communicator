@@ -17,6 +17,8 @@ namespace Chat
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
+        private EventingBasicConsumer _consumer;
+        private EventHandler<BasicDeliverEventArgs> _handler;
         private ConcurrentDictionary<string, TaskCompletionSourceWrapper> _taskCollection = new ConcurrentDictionary<string, TaskCompletionSourceWrapper>();
 
         public RabbitMqClientBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
@@ -61,8 +63,8 @@ namespace Chat
         private void BindToResponseQueue()
         {
             _channelConsume.QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
-            var consumer = new EventingBasicConsumer(_channelConsume);
-            consumer.Received += (sender, args) =>
+            _consumer = new EventingBasicConsumer(_channelConsume);
+            _handler = (sender, args) =>
             {
                 var responseType = Type.GetType(args.BasicProperties.Type);
                 var responseMessage = _messageSerializer.Deserialize(args.Body, responseType);
@@ -72,7 +74,8 @@ namespace Chat
                 if (responseHandler == null) return;
                 responseHandler.OnMessage(responseMessage);
             };
-            _channelConsume.BasicConsume(_responseQueueName, true, consumer);
+            _consumer.Received += _handler;
+            _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
         }
 
         private string GetGuid()
@@ -82,6 +85,7 @@ namespace Chat
 
         public void Dispose()
         {
+            _consumer.Received -= _handler;
             _channelConsume.Dispose();
             _channelProduce.Dispose();
             _connection.Dispose();

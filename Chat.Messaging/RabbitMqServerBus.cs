@@ -16,6 +16,10 @@ namespace Chat
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
+        private EventingBasicConsumer _consumerRequest;
+        private EventingBasicConsumer _consumerRequestResponse;
+        private EventHandler<BasicDeliverEventArgs> _handlerRequest;
+        private EventHandler<BasicDeliverEventArgs> _handlerRequestResponse;
 
         public RabbitMqServerBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
         {
@@ -33,8 +37,8 @@ namespace Chat
 
         public void AddHandler<TRequest>(Action<TRequest> handler)
         {
-            var consumer = new EventingBasicConsumer(_channelConsume);
-            consumer.Received += (sender, args) =>
+            _consumerRequest = new EventingBasicConsumer(_channelConsume);
+            _handlerRequest = (sender, args) =>
             {
                 Task.Run(() =>
                 {
@@ -42,13 +46,14 @@ namespace Chat
                     handler(requestMessage);
                 });
             };
-            _channelConsume.BasicConsume(_requestQueueName, true, consumer);
+            _consumerRequest.Received += _handlerRequest;
+            _channelConsume.BasicConsume(_requestQueueName, true, _consumerRequest);
         }
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
-            var consumer = new EventingBasicConsumer(_channelConsume);
-            consumer.Received += (sender, args) =>
+            _consumerRequestResponse = new EventingBasicConsumer(_channelConsume);
+            _handlerRequestResponse = (sender, args) =>
             {
                 Task.Run(() =>
                 {
@@ -64,7 +69,8 @@ namespace Chat
                     _channelProduce.BasicPublish(_exchangeName, responseToQueueName, replyProperties, body);
                 });
             };
-            _channelConsume.BasicConsume(_requestQueueName, true, consumer);
+            _consumerRequestResponse.Received += _handlerRequestResponse;
+            _channelConsume.BasicConsume(_requestQueueName, true, _consumerRequestResponse);
         }
 
         private string GetGuid()
@@ -74,6 +80,8 @@ namespace Chat
 
         public void Dispose()
         {
+            _consumerRequest.Received -= _handlerRequest;
+            _consumerRequestResponse.Received -= _handlerRequestResponse;
             _channelConsume.Dispose();
             _channelProduce.Dispose();
             _connection.Dispose();
