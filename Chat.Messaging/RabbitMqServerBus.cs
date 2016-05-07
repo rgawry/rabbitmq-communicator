@@ -12,7 +12,6 @@ namespace Chat
     {
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
-        private ConnectionFactory _factory;
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
