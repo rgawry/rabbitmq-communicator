@@ -11,7 +11,7 @@ namespace Chat
     {
         private const int DEFAULT_TIMEOUT_VALUE = 5;
         
-        private CancellationTokenSource _cancelationTokenSource;
+        private CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
         private CancellationToken _cancelationToken;
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
@@ -41,7 +41,6 @@ namespace Chat
             _channelProduce = _connection.CreateModel();
             _responseQueueName = _channelProduce.QueueDeclare().QueueName;
             BindToResponseQueue();
-            _cancelationTokenSource = new CancellationTokenSource();
             _cancelationToken = _cancelationTokenSource.Token;
             Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
         }
@@ -80,7 +79,7 @@ namespace Chat
                 var correlationId = args.BasicProperties.CorrelationId;
                 var responseHandler = default(TaskCompletionSourceWrapper);
                 _taskCollection.TryRemove(correlationId, out responseHandler);
-                if (responseHandler == null || responseHandler.Timout) return;
+                if (responseHandler == null || responseHandler.Timeout) return;
                 responseHandler.OnMessage(responseMessage);
             };
             _consumer.Received += _handler;
@@ -96,7 +95,7 @@ namespace Chat
                     if (IsTimeout(task.Value.Created))
                     {
                         task.Value.OnTimeout();
-                        task.Value.Timout = true;
+                        task.Value.Timeout = true;
                     }
                 }
                 if (_cancelationToken.IsCancellationRequested) break;
@@ -126,7 +125,7 @@ namespace Chat
             public Action<object> OnMessage { get; private set; }
             public Action OnTimeout { get; private set; }
             public DateTime Created { get; private set; }
-            public bool Timout { get; set; }
+            public bool Timeout { get; set; }
 
             public static TaskCompletionSourceWrapper Create<TResponse>()
             {
