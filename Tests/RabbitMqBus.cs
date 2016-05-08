@@ -29,7 +29,7 @@ namespace Chat
 
                 var request = new OpenSessionRequest { UserName = "login1" };
 
-                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o => new OpenSessionResponse { IsLogged = true });
+                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req => new OpenSessionResponse { IsLogged = true });
 
                 var response = await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
 
@@ -57,10 +57,10 @@ namespace Chat
                 var request1 = new OpenSessionRequest { UserName = "login1" };
                 var request2 = new OpenSessionRequest { UserName = "login2" };
 
-                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o =>
+                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req =>
                 {
-                    if (o.UserName == "login1") Thread.Sleep(500);
-                    return new OpenSessionResponse { IsLogged = o.UserName == "login1" ? true : false };
+                    if (req.UserName == "login1") Thread.Sleep(500);
+                    return new OpenSessionResponse { IsLogged = req.UserName == "login1" ? true : false };
                 });
 
                 var response1AsTask = clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request1);
@@ -97,7 +97,7 @@ namespace Chat
 
                     var request = new OpenSessionRequest { UserName = "login1" };
 
-                    serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o =>
+                    serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req =>
                     {
                         Thread.Sleep(2000);
                         return new OpenSessionResponse { IsLogged = true };
@@ -133,9 +133,9 @@ namespace Chat
                 var request2 = new OpenSessionRequest { UserName = "login2" };
                 var request3 = new OpenSessionRequest { UserName = "login3" };
 
-                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(o =>
+                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req =>
                 {
-                    if (o.UserName == "login1" || o.UserName == "login3") Thread.Sleep(2000);
+                    if (req.UserName == "login1" || req.UserName == "login3") Thread.Sleep(2000);
                     return new OpenSessionResponse { IsLogged = true };
                 });
 
