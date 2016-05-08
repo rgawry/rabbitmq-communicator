@@ -50,8 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientBusServerBusIntegrationTests.cs" />
-    <Compile Include="ChatServerTests.cs" />
+    <Compile Include="RabbitMqBus.cs" />
+    <Compile Include="ServerLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
