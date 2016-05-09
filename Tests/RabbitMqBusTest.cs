@@ -93,7 +93,7 @@ namespace Chat
                     clientBus.Init();
                     serverBus.Init();
 
-                    clientBus.TimeoutValue = 1;
+                    clientBus.TimeoutValue = 0.1f;
 
                     var request = new OpenSessionRequest { UserName = "login1" };
 
@@ -109,6 +109,7 @@ namespace Chat
             Assert.That(testDelegate, Throws.TypeOf<TimeoutException>());
         }
 
+        // TODO clarify test name
         [Test]
         [Timeout(6000)]
         public async Task ShouldFirstAndThirdTimeout()
