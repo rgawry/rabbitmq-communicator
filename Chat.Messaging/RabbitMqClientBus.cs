@@ -13,7 +13,7 @@ namespace Chat
         private const float DEFAULT_TIMEOUT_VALUE = 5;
 
         private CompositeDisposable _thisDisposer = new CompositeDisposable();
-        private CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _cancelationTokenSource;
         private CancellationToken _cancelationToken;
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
@@ -42,6 +42,7 @@ namespace Chat
             _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);
             _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
             _responseQueueName = _channelProduce.QueueDeclare().QueueName;
+            _cancelationTokenSource = new CancellationTokenSource().DisposeWith(_thisDisposer);
             _cancelationToken = _cancelationTokenSource.Token;
             BindToResponseQueue();
             Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
@@ -112,7 +113,6 @@ namespace Chat
         public void Dispose()
         {
             _cancelationTokenSource.Cancel();
-            _cancelationTokenSource.Dispose();
             if (_consumer != null) _consumer.Received -= _handler;
             _thisDisposer.Dispose();
         }
