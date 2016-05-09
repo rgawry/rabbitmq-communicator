@@ -36,7 +36,7 @@ namespace Chat
             _messageSerializer = messageSerializer;
         }
 
-        public void Init()
+        public void Initialize()
         {
             TimeoutValue = DEFAULT_TIMEOUT_VALUE;
             _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);

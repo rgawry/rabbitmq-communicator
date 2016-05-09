@@ -26,7 +26,7 @@ namespace Chat
             _messageSerializer = messageSerializer;
         }
 
-        public void Init()
+        public void Initialize()
         {
             _channelConsume = _connection.CreateModel();
             _channelProduce = _connection.CreateModel();

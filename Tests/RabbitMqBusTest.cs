@@ -24,8 +24,8 @@ namespace Chat
             using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
             using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
             {
-                clientBus.Init();
-                serverBus.Init();
+                clientBus.Initialize();
+                serverBus.Initialize();
 
                 var request = new OpenSessionRequest { UserName = "login1" };
 
@@ -51,8 +51,8 @@ namespace Chat
             using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
             using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
             {
-                clientBus.Init();
-                serverBus.Init();
+                clientBus.Initialize();
+                serverBus.Initialize();
 
                 var request1 = new OpenSessionRequest { UserName = "login1" };
                 var request2 = new OpenSessionRequest { UserName = "login2" };
@@ -90,8 +90,8 @@ namespace Chat
                 using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
                 using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
                 {
-                    clientBus.Init();
-                    serverBus.Init();
+                    clientBus.Initialize();
+                    serverBus.Initialize();
 
                     clientBus.TimeoutValue = 0.1f;
 
@@ -125,8 +125,8 @@ namespace Chat
             using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
             using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
             {
-                clientBus.Init();
-                serverBus.Init();
+                clientBus.Initialize();
+                serverBus.Initialize();
 
                 clientBus.TimeoutValue = 1;
 
