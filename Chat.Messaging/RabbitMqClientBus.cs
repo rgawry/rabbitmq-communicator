@@ -2,6 +2,7 @@
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,8 +10,9 @@ namespace Chat
 {
     public sealed class RabbitMqClientBus : IClientBus, IDisposable
     {
-        private const int DEFAULT_TIMEOUT_VALUE = 5;
-        
+        private const float DEFAULT_TIMEOUT_VALUE = 5;
+
+        private CompositeDisposable _thisDisposer = new CompositeDisposable();
         private CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
         private CancellationToken _cancelationToken;
         private readonly string _exchangeName;
@@ -24,7 +26,7 @@ namespace Chat
         private EventHandler<BasicDeliverEventArgs> _handler;
         private ConcurrentDictionary<string, TaskCompletionSourceWrapper> _taskCollection = new ConcurrentDictionary<string, TaskCompletionSourceWrapper>();
 
-        public int TimeoutValue { get; set; }
+        public float TimeoutValue { get; set; }
 
         public RabbitMqClientBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
         {
@@ -37,11 +39,11 @@ namespace Chat
         public void Init()
         {
             TimeoutValue = DEFAULT_TIMEOUT_VALUE;
-            _channelConsume = _connection.CreateModel();
-            _channelProduce = _connection.CreateModel();
+            _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);
+            _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
             _responseQueueName = _channelProduce.QueueDeclare().QueueName;
-            BindToResponseQueue();
             _cancelationToken = _cancelationTokenSource.Token;
+            BindToResponseQueue();
             Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
         }
 
@@ -78,8 +80,10 @@ namespace Chat
                 var responseMessage = _messageSerializer.Deserialize(args.Body, responseType);
                 var correlationId = args.BasicProperties.CorrelationId;
                 var responseHandler = default(TaskCompletionSourceWrapper);
+
                 _taskCollection.TryRemove(correlationId, out responseHandler);
-                if (responseHandler == null || responseHandler.Timeout) return;
+
+                if (responseHandler == null) return;
                 responseHandler.OnMessage(responseMessage);
             };
             _consumer.Received += _handler;
@@ -90,23 +94,19 @@ namespace Chat
         {
             while (true)
             {
+                var now = DateTime.Now;
                 foreach (var task in _taskCollection)
                 {
-                    if (IsTimeout(task.Value.Created))
-                    {
-                        task.Value.OnTimeout();
-                        task.Value.Timeout = true;
-                    }
+                    if (!(task.Value.Created.AddSeconds(TimeoutValue) < now)) continue;
+
+                    var timeoutedTask = default(TaskCompletionSourceWrapper);
+                    if (!_taskCollection.TryRemove(task.Key, out timeoutedTask)) continue;
+
+                    timeoutedTask.OnTimeout();
                 }
                 if (_cancelationToken.IsCancellationRequested) break;
-                await Task.Delay(500);
+                await Task.Delay(100);
             }
-        }
-
-        private bool IsTimeout(DateTime created)
-        {
-            var result = created.AddSeconds(TimeoutValue) < DateTime.Now;
-            return result;
         }
 
         public void Dispose()
@@ -114,9 +114,7 @@ namespace Chat
             _cancelationTokenSource.Cancel();
             _cancelationTokenSource.Dispose();
             if (_consumer != null) _consumer.Received -= _handler;
-            _channelConsume.Dispose();
-            _channelProduce.Dispose();
-            _connection.Dispose();
+            _thisDisposer.Dispose();
         }
 
         class TaskCompletionSourceWrapper
@@ -125,7 +123,6 @@ namespace Chat
             public Action<object> OnMessage { get; private set; }
             public Action OnTimeout { get; private set; }
             public DateTime Created { get; private set; }
-            public bool Timeout { get; set; }
 
             public static TaskCompletionSourceWrapper Create<TResponse>()
             {
