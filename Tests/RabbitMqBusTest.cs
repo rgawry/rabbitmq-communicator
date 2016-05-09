@@ -10,16 +10,21 @@ namespace Chat
     [Timeout(1000)]
     public class RabbitMqBusTest
     {
+        private static IConnection CreateConnection()
+        {
+            var config = new Configuration();
+            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
+            return connectionFactory.CreateConnection();
+        }
+
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
-            var config = new Configuration();
             var messageSerializer = new JsonMessageSerializer();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
-            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
-            var connectionClient = connectionFactory.CreateConnection();
-            var connectionServer = connectionFactory.CreateConnection();
+            var connectionClient = CreateConnection();
+            var connectionServer = CreateConnection();
 
             using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
             using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
@@ -40,13 +45,11 @@ namespace Chat
         [Test]
         public async Task ShouldMatchRequestWithResponse()
         {
-            var config = new Configuration();
             var messageSerializer = new JsonMessageSerializer();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
-            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
-            var connectionClient = connectionFactory.CreateConnection();
-            var connectionServer = connectionFactory.CreateConnection();
+            var connectionClient = CreateConnection();
+            var connectionServer = CreateConnection();
 
             using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
             using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
@@ -79,48 +82,31 @@ namespace Chat
         {
             AsyncTestDelegate testDelegate = async () =>
             {
-                var config = new Configuration();
                 var messageSerializer = new JsonMessageSerializer();
                 var exchangeName = "session-exchange";
                 var queueName = "session-request";
-                var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
-                var connectionClient = connectionFactory.CreateConnection();
-                var connectionServer = connectionFactory.CreateConnection();
+                var connectionClient = CreateConnection(); 
 
                 using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
-                using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
                 {
                     clientBus.Initialize();
-                    serverBus.Initialize();
-
                     clientBus.TimeoutValue = 0.1f;
-
                     var request = new OpenSessionRequest { UserName = "login1" };
-
-                    serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req =>
-                    {
-                        Thread.Sleep(2000);
-                        return new OpenSessionResponse { IsLogged = true };
-                    });
-
                     await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
                 };
             };
             Assert.That(testDelegate, Throws.TypeOf<TimeoutException>());
         }
 
-        // TODO clarify test name
         [Test]
         [Timeout(6000)]
-        public async Task ShouldFirstAndThirdTimeout()
+        public async Task ShouldOnlySecondRequestFromThreeTimeout()
         {
-            var config = new Configuration();
             var messageSerializer = new JsonMessageSerializer();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
-            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
-            var connectionClient = connectionFactory.CreateConnection();
-            var connectionServer = connectionFactory.CreateConnection();
+            var connectionClient = CreateConnection();
+            var connectionServer = CreateConnection();
 
             using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
             using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
@@ -128,7 +114,7 @@ namespace Chat
                 clientBus.Initialize();
                 serverBus.Initialize();
 
-                clientBus.TimeoutValue = 1;
+                clientBus.TimeoutValue = 0.1f;
 
                 var request1 = new OpenSessionRequest { UserName = "login1" };
                 var request2 = new OpenSessionRequest { UserName = "login2" };
@@ -136,7 +122,7 @@ namespace Chat
 
                 serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req =>
                 {
-                    if (req.UserName == "login1" || req.UserName == "login3") Thread.Sleep(2000);
+                    if (req.UserName == "login1" || req.UserName == "login3") Thread.Sleep(1000);
                     return new OpenSessionResponse { IsLogged = true };
                 });
 
