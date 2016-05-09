@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Chat
 {
     [TestFixture]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public class RabbitMqBusTest
     {
         private static IConnection CreateConnection()
