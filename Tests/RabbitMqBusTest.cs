@@ -8,7 +8,7 @@ namespace Chat
 {
     [TestFixture]
     [Timeout(1000)]
-    public class RabbitMqBus
+    public class RabbitMqBusTest
     {
         [Test]
         public async Task ShouldReceiveSentMessage()
