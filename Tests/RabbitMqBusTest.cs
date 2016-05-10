@@ -11,7 +11,7 @@ namespace Chat
     public class TestMessageC { public bool Done { get; set; } }
 
     [TestFixture]
-    //[Timeout(2000)]
+    [Timeout(2000)]
     public class RabbitMqBusTest
     {
         private static IConnection CreateConnection()
@@ -44,7 +44,6 @@ namespace Chat
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
-
             using (var clientBus = GetClientBus())
             using (var serverBus = GetServerBus())
             {
