@@ -71,16 +71,14 @@ namespace Chat
             _channelConsume.QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
             _consumerReceivedHandler = (sender, args) =>
             {
-                var responseType = Type.GetType(args.BasicProperties.Type);
-                var responseMessage = _messageSerializer.Deserialize(args.Body, responseType);
                 var correlationId = args.BasicProperties.CorrelationId;
                 var responseHandler = default(ResponseHandler);
 
                 if (!_taskCollection.TryRemove(correlationId, out responseHandler)) return;
 
+                var responseMessage = _messageSerializer.Deserialize(args.Body, responseHandler.ResponseType);
                 responseHandler.OnMessage(responseMessage);
             };
-            _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _consumerReceivedHandler;
             _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
         }
@@ -117,11 +115,13 @@ namespace Chat
             public Action<object> OnMessage { get; private set; }
             public Action OnTimeout { get; private set; }
             public DateTime Created { get; private set; }
+            public Type ResponseType { get; set; }
 
             public static ResponseHandler Create<TResponse>()
             {
                 var result = new ResponseHandler();
                 result.Created = DateTime.Now;
+                result.ResponseType = typeof(TResponse);
                 var tcs = new TaskCompletionSource<TResponse>();
                 result.OnMessage = res => tcs.TrySetResult((TResponse)res);
                 result.OnTimeout = () => tcs.TrySetException(new TimeoutException());
