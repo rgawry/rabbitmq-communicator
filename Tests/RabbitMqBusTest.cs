@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Chat
 {
-        public class TestMessageA { public string Name { get; set; } }
-        public class TestMessageB { public string Name { get; set; } }
-        public class TestMessageC { public bool Done { get; set; } }
+    public class TestMessageA { public string Name { get; set; } }
+    public class TestMessageB { public string Name { get; set; } }
+    public class TestMessageC { public bool Done { get; set; } }
 
     [TestFixture]
     [Timeout(2000)]
@@ -77,6 +77,37 @@ namespace Chat
 
                 Assert.That(response1AsTask.Result.Done, Is.True);
                 Assert.That(response2AsTask.Result.Done, Is.False);
+            }
+        }
+
+        [Test]
+        public async Task ShouldMatchEachRequestTypeWithResponse()
+        {
+            var messageSerializer = new JsonMessageSerializer();
+            var exchangeName = "session-exchange";
+            var queueName = "session-request";
+            var connectionClient = CreateConnection();
+            var connectionServer = CreateConnection();
+
+            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
+            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
+            {
+                clientBus.Initialize();
+                serverBus.Initialize();
+
+                var request1 = new TestMessageA { Name = "login1" };
+                var request2 = new TestMessageB { Name = "login2" };
+
+                serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
+                serverBus.AddHandler<TestMessageB, TestMessageC>(req => new TestMessageC { Done = true });
+
+                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(request1);
+                var response2AsTask = clientBus.Request<TestMessageB, TestMessageC>(request2);
+
+                await Task.WhenAll(response1AsTask, response2AsTask);
+
+                Assert.That(response1AsTask.Result.Done, Is.True);
+                Assert.That(response2AsTask.Result.Done, Is.True);
             }
         }
 
