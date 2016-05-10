@@ -57,13 +57,14 @@ namespace Chat
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
             var correlationId = Guid.NewGuid().ToString();
-
-            var basicProperties = _channelProduce.CreateBasicProperties();
-            basicProperties.ReplyTo = _responseQueueName;
-            basicProperties.CorrelationId = correlationId;
+            var type = typeof(TRequest);
+            var requestProperties = _channelProduce.CreateBasicProperties();
+            requestProperties.ReplyTo = _responseQueueName;
+            requestProperties.CorrelationId = correlationId;
+            requestProperties.Type = type.ToString() + ", " + type.Assembly.FullName;
 
             var body = _messageSerializer.Serialize(request);
-            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
+            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, requestProperties, body);
 
             var responseHandler = ResponseHandler.Create<TResponse>();
             _taskCollection.TryAdd(correlationId, responseHandler);
