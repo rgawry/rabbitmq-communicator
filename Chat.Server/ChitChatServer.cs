@@ -10,7 +10,7 @@ namespace Chat
         public Dictionary<string, List<string>> UsersInRooms { get { return _usersInRooms; } }
         public string DefaultRoomName { get { return "default"; } }
 
-        public void Init()
+        public void Initialize()
         {
             _usersInRooms.Add(DefaultRoomName, new List<string>());
         }
