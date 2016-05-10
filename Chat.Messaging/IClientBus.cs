@@ -15,12 +15,5 @@ namespace Chat
         /// <param name="request">Request object.</param>
         /// <returns>Response object.</returns>
         Task<TResult> Request<TRequest, TResult>(TRequest request);
-
-        /// <summary>
-        /// Sends request to ChatServer.
-        /// </summary>
-        /// <typeparam name="TRequest">Type of request.</typeparam>
-        /// <param name="request">Request object.</param>
-        void Request<TRequest>(TRequest request);
     }
 }
