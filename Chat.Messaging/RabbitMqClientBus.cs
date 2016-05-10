@@ -24,7 +24,7 @@ namespace Chat
         private IModel _channelProduce;
         private EventingBasicConsumer _consumer;
         private EventHandler<BasicDeliverEventArgs> _handler;
-        private ConcurrentDictionary<string, TaskCompletionSourceWrapper> _taskCollection = new ConcurrentDictionary<string, TaskCompletionSourceWrapper>();
+        private ConcurrentDictionary<string, ResponseHandler> _taskCollection = new ConcurrentDictionary<string, ResponseHandler>();
 
         public float TimeoutValue { get; set; }
 
@@ -65,7 +65,7 @@ namespace Chat
             var body = _messageSerializer.Serialize(request);
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, basicProperties, body);
 
-            var responseHandler = TaskCompletionSourceWrapper.Create<TResponse>();
+            var responseHandler = ResponseHandler.Create<TResponse>();
             _taskCollection.TryAdd(correlationId, responseHandler);
 
             return ((TaskCompletionSource<TResponse>)responseHandler.Tcs).Task;
@@ -80,7 +80,7 @@ namespace Chat
                 var responseType = Type.GetType(args.BasicProperties.Type);
                 var responseMessage = _messageSerializer.Deserialize(args.Body, responseType);
                 var correlationId = args.BasicProperties.CorrelationId;
-                var responseHandler = default(TaskCompletionSourceWrapper);
+                var responseHandler = default(ResponseHandler);
 
                 _taskCollection.TryRemove(correlationId, out responseHandler);
 
@@ -100,7 +100,7 @@ namespace Chat
                 {
                     if (!(task.Value.Created.AddSeconds(TimeoutValue) < now)) continue;
 
-                    var timeoutedTask = default(TaskCompletionSourceWrapper);
+                    var timeoutedTask = default(ResponseHandler);
                     if (!_taskCollection.TryRemove(task.Key, out timeoutedTask)) continue;
 
                     timeoutedTask.OnTimeout();
@@ -117,16 +117,16 @@ namespace Chat
             _thisDisposer.Dispose();
         }
 
-        class TaskCompletionSourceWrapper
+        class ResponseHandler
         {
             public object Tcs { get; private set; }
             public Action<object> OnMessage { get; private set; }
             public Action OnTimeout { get; private set; }
             public DateTime Created { get; private set; }
 
-            public static TaskCompletionSourceWrapper Create<TResponse>()
+            public static ResponseHandler Create<TResponse>()
             {
-                var result = new TaskCompletionSourceWrapper();
+                var result = new ResponseHandler();
                 result.Created = DateTime.Now;
                 var tcs = new TaskCompletionSource<TResponse>();
                 result.OnMessage = res => tcs.TrySetResult((TResponse)res);
