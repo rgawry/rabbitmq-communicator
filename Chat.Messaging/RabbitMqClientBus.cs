@@ -23,7 +23,7 @@ namespace Chat
         private IModel _channelConsume;
         private IModel _channelProduce;
         private EventingBasicConsumer _consumer;
-        private EventHandler<BasicDeliverEventArgs> _handler;
+        private EventHandler<BasicDeliverEventArgs> _consumerReceivedHandler;
         private ConcurrentDictionary<string, ResponseHandler> _taskCollection = new ConcurrentDictionary<string, ResponseHandler>();
 
         public float TimeoutValue { get; set; }
@@ -69,7 +69,7 @@ namespace Chat
         private void ListenOnResponseQueue()
         {
             _channelConsume.QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
-            _handler = (sender, args) =>
+            _consumerReceivedHandler = (sender, args) =>
             {
                 var responseType = Type.GetType(args.BasicProperties.Type);
                 var responseMessage = _messageSerializer.Deserialize(args.Body, responseType);
@@ -81,7 +81,7 @@ namespace Chat
                 responseHandler.OnMessage(responseMessage);
             };
             _consumer = new EventingBasicConsumer(_channelConsume);
-            _consumer.Received += _handler;
+            _consumer.Received += _consumerReceivedHandler;
             _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
         }
 
@@ -107,7 +107,7 @@ namespace Chat
         public void Dispose()
         {
             _cancelationTokenSource.Cancel();
-            if (_consumer != null) _consumer.Received -= _handler;
+            if (_consumer != null) _consumer.Received -= _consumerReceivedHandler;
             _thisDisposer.Dispose();
         }
 
