@@ -51,16 +51,16 @@ namespace Chat
 
                     if (!_requestsHandlers.ContainsKey(requestType)) return;
 
-                    var handler = default(Delegate);
-                    _requestsHandlers.TryGetValue(requestType, out handler);
+                    var requestHandler = default(Delegate);
+                    _requestsHandlers.TryGetValue(requestType, out requestHandler);
 
-                    var response = handler.DynamicInvoke(requestMessage);
+                    var response = requestHandler.DynamicInvoke(requestMessage);
 
-                    var responseToQueueName = args.BasicProperties.ReplyTo;
+                    var responseQueueName = args.BasicProperties.ReplyTo;
                     var responseMessageBody = _messageSerializer.Serialize(response);
                     var responseProperties = _channelProduce.CreateBasicProperties();
                     responseProperties.CorrelationId = args.BasicProperties.CorrelationId;
-                    _channelProduce.BasicPublish(_exchangeName, responseToQueueName, responseProperties, responseMessageBody);
+                    _channelProduce.BasicPublish(_exchangeName, responseQueueName, responseProperties, responseMessageBody);
                 });
             };
             _consumer = new EventingBasicConsumer(_channelConsume);
