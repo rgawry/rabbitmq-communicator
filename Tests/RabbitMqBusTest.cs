@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Chat
 {
+        public class TestMessageA { public string Name { get; set; } }
+        public class TestMessageB { public string Name { get; set; } }
+        public class TestMessageC { public bool Done { get; set; } }
+
     [TestFixture]
     [Timeout(2000)]
     public class RabbitMqBusTest
@@ -32,13 +36,13 @@ namespace Chat
                 clientBus.Initialize();
                 serverBus.Initialize();
 
-                var request = new OpenSessionRequest { UserName = "login1" };
+                var request = new TestMessageA { Name = "login1" };
 
-                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req => new OpenSessionResponse { IsLogged = true });
+                serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
 
-                var response = await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
+                var response = await clientBus.Request<TestMessageA, TestMessageC>(request);
 
-                Assert.That(response.IsLogged, Is.True);
+                Assert.That(response.Done, Is.True);
             }
         }
 
@@ -57,22 +61,22 @@ namespace Chat
                 clientBus.Initialize();
                 serverBus.Initialize();
 
-                var request1 = new OpenSessionRequest { UserName = "login1" };
-                var request2 = new OpenSessionRequest { UserName = "login2" };
+                var request1 = new TestMessageA { Name = "login1" };
+                var request2 = new TestMessageA { Name = "login2" };
 
-                serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(req =>
+                serverBus.AddHandler<TestMessageA, TestMessageC>(req =>
                 {
-                    if (req.UserName == "login1") Thread.Sleep(500);
-                    return new OpenSessionResponse { IsLogged = req.UserName == "login1" ? true : false };
+                    if (req.Name == "login1") Thread.Sleep(500);
+                    return new TestMessageC { Done = req.Name == "login1" ? true : false };
                 });
 
-                var response1AsTask = clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request1);
-                var response2AsTask = clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request2);
+                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(request1);
+                var response2AsTask = clientBus.Request<TestMessageA, TestMessageC>(request2);
 
                 await Task.WhenAll(response1AsTask, response2AsTask);
 
-                Assert.That(response1AsTask.Result.IsLogged, Is.True);
-                Assert.That(response2AsTask.Result.IsLogged, Is.False);
+                Assert.That(response1AsTask.Result.Done, Is.True);
+                Assert.That(response2AsTask.Result.Done, Is.False);
             }
         }
 
@@ -85,14 +89,14 @@ namespace Chat
                 var messageSerializer = new JsonMessageSerializer();
                 var exchangeName = "session-exchange";
                 var queueName = "session-request";
-                var connectionClient = CreateConnection(); 
+                var connectionClient = CreateConnection();
 
                 using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
                 {
                     clientBus.Initialize();
                     clientBus.TimeoutValue = 0.1f;
-                    var request = new OpenSessionRequest { UserName = "login1" };
-                    await clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
+                    var request = new TestMessageA { Name = "login1" };
+                    await clientBus.Request<TestMessageA, TestMessageC>(request);
                 };
             };
             Assert.That(testDelegate, Throws.TypeOf<TimeoutException>());
