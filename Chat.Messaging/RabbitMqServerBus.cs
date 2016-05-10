@@ -1,12 +1,14 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
 
 namespace Chat
 {
     public sealed class RabbitMqServerBus : IServerBus, IDisposable
     {
+        private CompositeDisposable _thisDisposer = new CompositeDisposable();
         private readonly string _exchangeName;
         private readonly string _requestQueueName;
         private IMessageSerializer _messageSerializer;
@@ -28,8 +30,8 @@ namespace Chat
 
         public void Initialize()
         {
-            _channelConsume = _connection.CreateModel();
-            _channelProduce = _connection.CreateModel();
+            _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);
+            _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
         }
 
         public void AddHandler<TRequest>(Action<TRequest> handler)
@@ -74,9 +76,7 @@ namespace Chat
         {
             if (_consumerRequest != null) _consumerRequest.Received -= _handlerRequest;
             if (_consumerRequestResponse != null) _consumerRequestResponse.Received -= _handlerRequestResponse;
-            _channelConsume.Dispose();
-            _channelProduce.Dispose();
-            _connection.Dispose();
+            _thisDisposer.Dispose();
         }
     }
 }
