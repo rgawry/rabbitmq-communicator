@@ -63,7 +63,8 @@ namespace Chat
 
                     var body = _messageSerializer.Serialize(response);
                     var replyProperties = _channelProduce.CreateBasicProperties();
-                    replyProperties.Type = typeof(TResponse).ToString();
+                    var type = typeof(TResponse);
+                    replyProperties.Type = type.ToString() + ", " + type.Assembly.FullName;
                     replyProperties.CorrelationId = args.BasicProperties.CorrelationId;
                     _channelProduce.BasicPublish(_exchangeName, responseToQueueName, replyProperties, body);
                 });
