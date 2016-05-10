@@ -82,9 +82,8 @@ namespace Chat
                 var correlationId = args.BasicProperties.CorrelationId;
                 var responseHandler = default(ResponseHandler);
 
-                _taskCollection.TryRemove(correlationId, out responseHandler);
+                if (!_taskCollection.TryRemove(correlationId, out responseHandler)) return;
 
-                if (responseHandler == null) return;
                 responseHandler.OnMessage(responseMessage);
             };
             _consumer.Received += _handler;
