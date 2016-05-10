@@ -10,7 +10,7 @@ namespace Chat
         {
             const string userName = "login1";
             var chatServer = new ChitChatServer();
-            chatServer.Init();
+            chatServer.Initialize();
             var request = new OpenSessionRequest { UserName = userName };
 
             Assert.That(chatServer.SessionHandler(request).IsLogged, Is.True);
@@ -22,7 +22,7 @@ namespace Chat
         public void ShouldSwitchRoom()
         {
             var chatServer = new ChitChatServer();
-            chatServer.Init();
+            chatServer.Initialize();
             var request = new JoinRoomRequest { RoomName = "testRoomName", Token = "login1" };
 
             chatServer.SwitchRoomHandler(request);
