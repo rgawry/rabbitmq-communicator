@@ -57,10 +57,10 @@ namespace Chat
                     var response = handler.DynamicInvoke(requestMessage);
 
                     var responseToQueueName = args.BasicProperties.ReplyTo;
-                    var body = _messageSerializer.Serialize(response);
+                    var responseMessageBody = _messageSerializer.Serialize(response);
                     var responseProperties = _channelProduce.CreateBasicProperties();
                     responseProperties.CorrelationId = args.BasicProperties.CorrelationId;
-                    _channelProduce.BasicPublish(_exchangeName, responseToQueueName, responseProperties, body);
+                    _channelProduce.BasicPublish(_exchangeName, responseToQueueName, responseProperties, responseMessageBody);
                 });
             };
             _consumer = new EventingBasicConsumer(_channelConsume);
