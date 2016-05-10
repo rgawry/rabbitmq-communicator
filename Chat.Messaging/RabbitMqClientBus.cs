@@ -75,7 +75,6 @@ namespace Chat
         private void ListenOnResponseQueue()
         {
             _channelConsume.QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
-            _consumer = new EventingBasicConsumer(_channelConsume);
             _handler = (sender, args) =>
             {
                 var responseType = Type.GetType(args.BasicProperties.Type);
@@ -87,6 +86,7 @@ namespace Chat
 
                 responseHandler.OnMessage(responseMessage);
             };
+            _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _handler;
             _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
         }
