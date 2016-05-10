@@ -48,20 +48,14 @@ namespace Chat
             Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
         }
 
-        public void Request<TRequest>(TRequest request)
-        {
-            var body = _messageSerializer.Serialize(request);
-            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, null, body);
-        }
-
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
             var correlationId = Guid.NewGuid().ToString();
-            var type = typeof(TRequest);
+            var requestType = typeof(TRequest);
             var requestProperties = _channelProduce.CreateBasicProperties();
             requestProperties.ReplyTo = _responseQueueName;
             requestProperties.CorrelationId = correlationId;
-            requestProperties.Type = type.ToString() + ", " + type.Assembly.FullName;
+            requestProperties.Type = requestType.ToString() + ", " + requestType.Assembly.FullName;
 
             var body = _messageSerializer.Serialize(request);
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, requestProperties, body);
