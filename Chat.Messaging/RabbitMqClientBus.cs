@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Castle.Core;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Chat
 {
-    public sealed class RabbitMqClientBus : IClientBus, IDisposable
+    public sealed class RabbitMqClientBus : IClientBus, IDisposable, IInitializable
     {
         private const float DEFAULT_TIMEOUT_VALUE = 5;
 

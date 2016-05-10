@@ -14,9 +14,10 @@ namespace Chat
     [Timeout(2000)]
     public class RabbitMqBusTest
     {
+        private static Configuration config = new Configuration();
+
         private static IConnection CreateConnection()
         {
-            var config = new Configuration();
             var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
             return connectionFactory.CreateConnection();
         }
@@ -24,21 +25,17 @@ namespace Chat
         private static RabbitMqClientBus GetClientBus()
         {
             var messageSerializer = new JsonMessageSerializer();
-            var exchangeName = "session-exchange";
-            var queueName = "session-request";
             var connectionClient = CreateConnection();
 
-            return new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer);
+            return new RabbitMqClientBus(config.ExchangeRequestName, config.QueueRequestName, connectionClient, messageSerializer);
         }
 
         private static RabbitMqServerBus GetServerBus()
         {
             var messageSerializer = new JsonMessageSerializer();
-            var exchangeName = "session-exchange";
-            var queueName = "session-request";
             var connectionServer = CreateConnection();
 
-            return new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer);
+            return new RabbitMqServerBus(config.ExchangeRequestName, config.QueueRequestName, connectionServer, messageSerializer);
         }
 
         [Test]

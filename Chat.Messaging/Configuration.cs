@@ -7,6 +7,8 @@ namespace Chat
     {
         public int Port { get { return GetPort(); } }
         public string HostName { get { return ConfigurationManager.AppSettings["host-name"]; } }
+        public string ExchangeRequestName { get { return ConfigurationManager.AppSettings["exchange-request-name"]; }  }
+        public string QueueRequestName { get { return ConfigurationManager.AppSettings["queue-request-name"]; }  }
 
         private static int GetPort()
         {

@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Castle.Core;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Chat
 {
-    public sealed class RabbitMqServerBus : IServerBus, IDisposable
+    public sealed class RabbitMqServerBus : IServerBus, IDisposable, IInitializable
     {
         private CompositeDisposable _thisDisposer = new CompositeDisposable();
         private readonly string _exchangeName;
