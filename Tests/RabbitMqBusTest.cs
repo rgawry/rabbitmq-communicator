@@ -11,7 +11,7 @@ namespace Chat
     public class TestMessageC { public bool Done { get; set; } }
 
     [TestFixture]
-    [Timeout(2000)]
+    //[Timeout(2000)]
     public class RabbitMqBusTest
     {
         private static IConnection CreateConnection()
@@ -21,17 +21,32 @@ namespace Chat
             return connectionFactory.CreateConnection();
         }
 
-        [Test]
-        public async Task ShouldReceiveSentMessage()
+        private static RabbitMqClientBus GetClientBus()
         {
             var messageSerializer = new JsonMessageSerializer();
             var exchangeName = "session-exchange";
             var queueName = "session-request";
             var connectionClient = CreateConnection();
+
+            return new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer);
+        }
+
+        private static RabbitMqServerBus GetServerBus()
+        {
+            var messageSerializer = new JsonMessageSerializer();
+            var exchangeName = "session-exchange";
+            var queueName = "session-request";
             var connectionServer = CreateConnection();
 
-            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
-            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
+            return new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer);
+        }
+
+        [Test]
+        public async Task ShouldReceiveSentMessage()
+        {
+
+            using (var clientBus = GetClientBus())
+            using (var serverBus = GetServerBus())
             {
                 clientBus.Initialize();
                 serverBus.Initialize();
@@ -49,14 +64,8 @@ namespace Chat
         [Test]
         public async Task ShouldMatchRequestWithResponse()
         {
-            var messageSerializer = new JsonMessageSerializer();
-            var exchangeName = "session-exchange";
-            var queueName = "session-request";
-            var connectionClient = CreateConnection();
-            var connectionServer = CreateConnection();
-
-            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
-            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
+            using (var clientBus = GetClientBus())
+            using (var serverBus = GetServerBus())
             {
                 clientBus.Initialize();
                 serverBus.Initialize();
@@ -83,14 +92,8 @@ namespace Chat
         [Test]
         public async Task ShouldMatchEachRequestTypeWithResponse()
         {
-            var messageSerializer = new JsonMessageSerializer();
-            var exchangeName = "session-exchange";
-            var queueName = "session-request";
-            var connectionClient = CreateConnection();
-            var connectionServer = CreateConnection();
-
-            using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
-            using (var serverBus = new RabbitMqServerBus(exchangeName, queueName, connectionServer, messageSerializer))
+            using (var clientBus = GetClientBus())
+            using (var serverBus = GetServerBus())
             {
                 clientBus.Initialize();
                 serverBus.Initialize();
@@ -117,12 +120,7 @@ namespace Chat
         {
             AsyncTestDelegate testDelegate = async () =>
             {
-                var messageSerializer = new JsonMessageSerializer();
-                var exchangeName = "session-exchange";
-                var queueName = "session-request";
-                var connectionClient = CreateConnection();
-
-                using (var clientBus = new RabbitMqClientBus(exchangeName, queueName, connectionClient, messageSerializer))
+                using (var clientBus = GetClientBus())
                 {
                     clientBus.Initialize();
                     clientBus.TimeoutValue = 0.1f;
