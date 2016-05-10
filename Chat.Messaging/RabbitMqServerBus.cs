@@ -1,6 +1,7 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Concurrent;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 
@@ -15,10 +16,9 @@ namespace Chat
         private IConnection _connection;
         private IModel _channelConsume;
         private IModel _channelProduce;
-        private EventingBasicConsumer _consumerRequest;
-        private EventingBasicConsumer _consumerRequestResponse;
-        private EventHandler<BasicDeliverEventArgs> _handlerRequest;
-        private EventHandler<BasicDeliverEventArgs> _handlerRequestResponse;
+        private EventingBasicConsumer _consumer;
+        private EventHandler<BasicDeliverEventArgs> _consumerReceivedHandler;
+        private ConcurrentDictionary<Type, Delegate> _requestsHandlers = new ConcurrentDictionary<Type, Delegate>();
 
         public RabbitMqServerBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
         {
@@ -32,51 +32,45 @@ namespace Chat
         {
             _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);
             _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
-        }
-
-        public void AddHandler<TRequest>(Action<TRequest> handler)
-        {
-            _consumerRequest = new EventingBasicConsumer(_channelConsume);
-            _handlerRequest = (sender, args) =>
-            {
-                Task.Run(() =>
-                {
-                    var requestMessage = _messageSerializer.Deserialize<TRequest>(args.Body);
-                    handler(requestMessage);
-                });
-            };
-            _consumerRequest.Received += _handlerRequest;
-            _channelConsume.BasicConsume(_requestQueueName, true, _consumerRequest);
+            ListenOnRequestQueue();
         }
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
-            _consumerRequestResponse = new EventingBasicConsumer(_channelConsume);
-            _handlerRequestResponse = (sender, args) =>
+            _requestsHandlers.TryAdd(typeof(TRequest), handler);
+        }
+
+        private void ListenOnRequestQueue()
+        {
+            _consumerReceivedHandler = (sender, args) =>
             {
                 Task.Run(() =>
                 {
-                    var requestMessage = _messageSerializer.Deserialize<TRequest>(args.Body);
+                    var requestType = Type.GetType(args.BasicProperties.Type);
+                    var requestMessage = _messageSerializer.Deserialize(args.Body, requestType);
+
+                    if (!_requestsHandlers.ContainsKey(requestType)) return;
+
+                    var handler = default(Delegate);
+                    _requestsHandlers.TryGetValue(requestType, out handler);
+
+                    var response = handler.DynamicInvoke(requestMessage);
+
                     var responseToQueueName = args.BasicProperties.ReplyTo;
-
-                    var response = handler(requestMessage);
-
                     var body = _messageSerializer.Serialize(response);
-                    var replyProperties = _channelProduce.CreateBasicProperties();
-                    var type = typeof(TResponse);
-                    replyProperties.Type = type.ToString() + ", " + type.Assembly.FullName;
-                    replyProperties.CorrelationId = args.BasicProperties.CorrelationId;
-                    _channelProduce.BasicPublish(_exchangeName, responseToQueueName, replyProperties, body);
+                    var responseProperties = _channelProduce.CreateBasicProperties();
+                    responseProperties.CorrelationId = args.BasicProperties.CorrelationId;
+                    _channelProduce.BasicPublish(_exchangeName, responseToQueueName, responseProperties, body);
                 });
             };
-            _consumerRequestResponse.Received += _handlerRequestResponse;
-            _channelConsume.BasicConsume(_requestQueueName, true, _consumerRequestResponse);
+            _consumer = new EventingBasicConsumer(_channelConsume);
+            _consumer.Received += _consumerReceivedHandler;
+            _channelConsume.BasicConsume(_requestQueueName, true, _consumer);
         }
 
         public void Dispose()
         {
-            if (_consumerRequest != null) _consumerRequest.Received -= _handlerRequest;
-            if (_consumerRequestResponse != null) _consumerRequestResponse.Received -= _handlerRequestResponse;
+            if (_consumer != null) _consumer.Received -= _consumerReceivedHandler;
             _thisDisposer.Dispose();
         }
     }
