@@ -79,6 +79,7 @@ namespace Chat
                 var responseMessage = _messageSerializer.Deserialize(args.Body, responseHandler.ResponseType);
                 responseHandler.OnMessage(responseMessage);
             };
+            _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _consumerReceivedHandler;
             _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
         }
