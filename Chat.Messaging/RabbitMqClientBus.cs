@@ -44,7 +44,7 @@ namespace Chat
             _responseQueueName = _channelProduce.QueueDeclare().QueueName;
             _cancelationTokenSource = new CancellationTokenSource().DisposeWith(_thisDisposer);
             _cancelationToken = _cancelationTokenSource.Token;
-            BindToResponseQueue();
+            ListenOnResponseQueue();
             Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
         }
 
@@ -71,7 +71,7 @@ namespace Chat
             return ((TaskCompletionSource<TResponse>)responseHandler.Tcs).Task;
         }
 
-        private void BindToResponseQueue()
+        private void ListenOnResponseQueue()
         {
             _channelConsume.QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
             _consumer = new EventingBasicConsumer(_channelConsume);
