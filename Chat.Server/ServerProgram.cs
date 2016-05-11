@@ -21,6 +21,7 @@ namespace Chat
             finally
             {
                 _container.Release(_severBus);
+                _container.Dispose();
             }
         }
     }

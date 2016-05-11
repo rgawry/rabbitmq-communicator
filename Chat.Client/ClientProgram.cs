@@ -33,7 +33,8 @@ namespace Chat
 
                 finally
                 {
-                    _container.Release(_container);
+                    _container.Release(_clientBus);
+                    _container.Dispose();
                 }
             }).Wait();
         }
