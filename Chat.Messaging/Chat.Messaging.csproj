@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientBusExtensions.cs" />
     <Compile Include="CompositeDisposableExtensions.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="IMessageSerializer.cs" />
