@@ -17,10 +17,9 @@ namespace Chat
                 Component.For<IRabbitMqClientBusFactory>()
                     .ImplementedBy<RabbitMqClientBusFactory>(),
                 Component.For<IServerBus>()
-                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqServerBusFactory>().Create(kernel.Resolve<IMessageSerializer>()))
-                        .LifeStyle.Transient,
+                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqServerBusFactory>().Create()),
                 Component.For<IClientBus>()
-                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqClientBusFactory>().Create(kernel.Resolve<IMessageSerializer>()))
+                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqClientBusFactory>().Create())
                         .LifeStyle.Transient);
         }
     }

@@ -2,6 +2,6 @@
 {
     public interface IRabbitMqClientBusFactory
     {
-        RabbitMqClientBus Create(IMessageSerializer messageSerializer);
+        RabbitMqClientBus Create();
     }
 }
