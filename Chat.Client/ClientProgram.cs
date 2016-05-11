@@ -26,7 +26,7 @@ namespace Chat
 
                         if (response.IsLogged)
                         {
-                            Console.WriteLine("Loged in as '" + login + "'");
+                            Console.WriteLine("Logged in as '" + login + "'");
                             break;
                         }
                         else
