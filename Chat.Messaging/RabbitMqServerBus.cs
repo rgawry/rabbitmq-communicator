@@ -50,10 +50,8 @@ namespace Chat
                     var requestType = Type.GetType(args.BasicProperties.Type);
                     var requestMessage = _messageSerializer.Deserialize(args.Body, requestType);
 
-                    if (!_requestsHandlers.ContainsKey(requestType)) return;
-
                     var requestHandler = default(Delegate);
-                    _requestsHandlers.TryGetValue(requestType, out requestHandler);
+                    if (!_requestsHandlers.TryGetValue(requestType, out requestHandler)) return;
 
                     var response = requestHandler.DynamicInvoke(requestMessage);
 
@@ -66,12 +64,12 @@ namespace Chat
             };
             _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _consumerReceivedHandler;
+            Disposable.Create(() => _consumer.Received -= _consumerReceivedHandler).DisposeWith(_thisDisposer);
             _channelConsume.BasicConsume(_requestQueueName, true, _consumer);
         }
 
         public void Dispose()
         {
-            if (_consumer != null) _consumer.Received -= _consumerReceivedHandler;
             _thisDisposer.Dispose();
         }
     }

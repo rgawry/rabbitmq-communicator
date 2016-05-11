@@ -20,8 +20,6 @@ namespace Chat
             }
             finally
             {
-                _container.Release(_chatServer);
-                _container.Release(_severBus);
                 _container.Dispose();
             }
         }

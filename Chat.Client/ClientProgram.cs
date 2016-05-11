@@ -21,8 +21,7 @@ namespace Chat
                     {
                         Console.WriteLine("Login: ");
                         var login = Console.ReadLine();
-                        var request = new OpenSessionRequest { UserName = login };
-                        var response = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
+                        var response = await _clientBus.Request(new OpenSessionRequest { UserName = login }).Response<OpenSessionResponse>();
 
                         if (response.IsLogged)
                         {
@@ -37,7 +36,6 @@ namespace Chat
                 }
                 finally
                 {
-                    _container.Release(_clientBus);
                     _container.Dispose();
                 }
             }).Wait();
