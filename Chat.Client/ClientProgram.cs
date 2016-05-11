@@ -17,17 +17,22 @@ namespace Chat
                 {
                     _clientBus = _container.Resolve<IClientBus>();
 
-                    Console.WriteLine("Login: ");
-                    var login = Console.ReadLine();
-                    var request = new OpenSessionRequest { UserName = login };
-                    var response = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
-                    if (response.IsLogged)
+                    while (true)
                     {
-                        Console.WriteLine("Loged in as '" + login + "'");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Cant log in as '" + login + "'");
+                        Console.WriteLine("Login: ");
+                        var login = Console.ReadLine();
+                        var request = new OpenSessionRequest { UserName = login };
+                        var response = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(request);
+
+                        if (response.IsLogged)
+                        {
+                            Console.WriteLine("Loged in as '" + login + "'");
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cant log in as '" + login + "'");
+                        }
                     }
                 }
                 finally
