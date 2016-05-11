@@ -6,7 +6,7 @@ namespace Chat
     public class ServerLogicTest
     {
         [Test]
-        public void ShouldGivenUserLogIn()
+        public void ShouldUserLogIn()
         {
             const string userName = "login1";
             var chatServer = new ChitChatServer();
@@ -19,7 +19,7 @@ namespace Chat
         }
 
         [Test]
-        public void ShouldSwitchRoom()
+        public void ShouldUserSwitchRoom()
         {
             var chatServer = new ChitChatServer();
             chatServer.Initialize();

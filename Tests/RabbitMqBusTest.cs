@@ -112,7 +112,7 @@ namespace Chat
 
         [Test]
         [Timeout(3000)]
-        public void ShouldTimeout()
+        public void ShouldRequestTimeout()
         {
             AsyncTestDelegate testDelegate = async () =>
             {
