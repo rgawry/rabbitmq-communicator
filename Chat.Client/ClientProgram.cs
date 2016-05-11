@@ -30,7 +30,6 @@ namespace Chat
                         Console.WriteLine("Cant log in as '" + login + "'");
                     }
                 }
-
                 finally
                 {
                     _container.Release(_clientBus);

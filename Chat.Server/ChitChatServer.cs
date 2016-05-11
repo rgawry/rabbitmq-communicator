@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Castle.Core;
+using System.Collections.Generic;
 
 namespace Chat
 {
-    public sealed class ChitChatServer
+    public sealed class ChitChatServer : IInitializable
     {
         private List<string> _users = new List<string>();
         private Dictionary<string, List<string>> _usersInRooms = new Dictionary<string, List<string>>();
