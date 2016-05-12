@@ -1,6 +1,6 @@
 ﻿namespace Chat
 {
-    public interface IChitChatServer
+    public interface IChatServer
     {
         OpenSessionResponse SessionHandler(OpenSessionRequest request);
         void SwitchRoomHandler(JoinRoomRequest request);

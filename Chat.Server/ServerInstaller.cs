@@ -9,8 +9,8 @@ namespace Chat
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<IChitChatServer>()
-                    .ImplementedBy<ChitChatServer>());
+                Component.For<IChatServer>()
+                    .ImplementedBy<ChatServer>());
         }
     }
 }
