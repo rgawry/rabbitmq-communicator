@@ -43,6 +43,7 @@ namespace Chat
             _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);
             _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
             _responseQueueName = _channelProduce.QueueDeclare().QueueName;
+            Disposable.Create(() => _cancelationTokenSource.Cancel()).DisposeWith(_thisDisposer);
             _cancelationTokenSource = new CancellationTokenSource().DisposeWith(_thisDisposer);
             _cancelationToken = _cancelationTokenSource.Token;
             ListenOnResponseQueue();
@@ -107,7 +108,6 @@ namespace Chat
 
         public void Dispose()
         {
-            _cancelationTokenSource.Cancel();
             _thisDisposer.Dispose();
         }
 
