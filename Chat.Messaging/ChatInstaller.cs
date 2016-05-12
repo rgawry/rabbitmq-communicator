@@ -11,16 +11,7 @@ namespace Chat
             container.Register(
                 Component.For<Configuration>(),
                 Component.For<IMessageSerializer>()
-                    .ImplementedBy<JsonMessageSerializer>(),
-                Component.For<IRabbitMqServerBusFactory>()
-                    .ImplementedBy<RabbitMqServerBusFactory>(),
-                Component.For<IRabbitMqClientBusFactory>()
-                    .ImplementedBy<RabbitMqClientBusFactory>(),
-                Component.For<IServerBus>()
-                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqServerBusFactory>().Create()),
-                Component.For<IClientBus>()
-                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqClientBusFactory>().Create())
-                        .LifeStyle.Transient);
+                    .ImplementedBy<JsonMessageSerializer>());
         }
     }
 }
