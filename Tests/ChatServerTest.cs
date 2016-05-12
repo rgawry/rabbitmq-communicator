@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using NSubstitute;
+using NUnit.Framework;
 
 namespace Chat
 {
@@ -8,10 +9,9 @@ namespace Chat
         [Test]
         public void ShouldUserLogIn()
         {
-            const string userName = "login1";
-            var chatServer = new ChatServer();
+            var chatServer = new ChatServer(Substitute.For<IServerBus>());
             chatServer.Initialize();
-            var request = new OpenSessionRequest { UserName = userName };
+            var request = new OpenSessionRequest { UserName = "login1" };
 
             Assert.That(chatServer.SessionHandler(request).IsLogged, Is.True);
             Assert.That(chatServer.SessionHandler(request).IsLogged, Is.False);
@@ -21,7 +21,7 @@ namespace Chat
         [Test]
         public void ShouldUserSwitchRoom()
         {
-            var chatServer = new ChatServer();
+            var chatServer = new ChatServer(Substitute.For<IServerBus>());
             chatServer.Initialize();
             var request = new JoinRoomRequest { RoomName = "testRoomName", Token = "login1" };
 

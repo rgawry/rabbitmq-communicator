@@ -5,18 +5,25 @@ namespace Chat
 {
     public sealed class ChatServer : IInitializable
     {
+        private IServerBus _serverBus;
         private List<string> _users = new List<string>();
         private Dictionary<string, List<string>> _usersInRooms = new Dictionary<string, List<string>>();
 
         public Dictionary<string, List<string>> UsersInRooms { get { return _usersInRooms; } }
         public string DefaultRoomName { get { return "default"; } }
 
+        public ChatServer(IServerBus serverBus)
+        {
+            _serverBus = serverBus;
+        }
+
         public void Initialize()
         {
             _usersInRooms.Add(DefaultRoomName, new List<string>());
+            _serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(SessionHandler);
         }
 
-        public OpenSessionResponse SessionHandler(OpenSessionRequest request)
+        internal OpenSessionResponse SessionHandler(OpenSessionRequest request)
         {
             var isLogged = false;
             if (!_users.Contains(request.UserName))
@@ -28,7 +35,7 @@ namespace Chat
             return new OpenSessionResponse { IsLogged = isLogged };
         }
 
-        public void SwitchRoomHandler(JoinRoomRequest request)
+        internal void SwitchRoomHandler(JoinRoomRequest request)
         {
             var defaultRoomUsers = _usersInRooms[DefaultRoomName];
             if (defaultRoomUsers.Contains(request.Token)) defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(request.Token));
