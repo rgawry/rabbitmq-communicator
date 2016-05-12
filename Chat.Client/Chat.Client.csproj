@@ -60,7 +60,6 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="ClientInstaller.cs" />
     <Compile Include="ClientProgram.cs" />
-    <Compile Include="ConsoleDisplay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
