@@ -82,6 +82,7 @@ namespace Chat
             };
             _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _consumerReceivedHandler;
+            Disposable.Create(() => _consumer.Received -= _consumerReceivedHandler).DisposeWith(_thisDisposer);
             _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
         }
 
@@ -107,7 +108,6 @@ namespace Chat
         public void Dispose()
         {
             _cancelationTokenSource.Cancel();
-            if (_consumer != null) _consumer.Received -= _consumerReceivedHandler;
             _thisDisposer.Dispose();
         }
 
