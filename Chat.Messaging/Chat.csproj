@@ -87,7 +87,7 @@
     <Compile Include="IRabbitMqServerBusFactory.cs" />
     <Compile Include="IServerBus.cs" />
     <Compile Include="JsonMessageSerializer.cs" />
-    <Compile Include="MessagingInstaller.cs" />
+    <Compile Include="ChatInstaller.cs" />
     <Compile Include="RabbitMqClientBus.cs" />
     <Compile Include="IClientBus.cs" />
     <Compile Include="OpenSessionRequest.cs" />

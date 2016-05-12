@@ -4,7 +4,7 @@ using Castle.Windsor;
 
 namespace Chat
 {
-    public class MessagingInstaller : IWindsorInstaller
+    public class ChatInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
