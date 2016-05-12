@@ -57,7 +57,7 @@ namespace Chat
             var requestProperties = _channelProduce.CreateBasicProperties();
             requestProperties.ReplyTo = _responseQueueName;
             requestProperties.CorrelationId = correlationId;
-            requestProperties.Type = requestType.ToString() + ", " + requestType.Assembly.FullName;
+            requestProperties.Type = requestType.FullName + ", " + requestType.Assembly.FullName;
 
             var requestMessageBody = _messageSerializer.Serialize(request);
             _channelProduce.BasicPublish(_exchangeName, _requestQueueName, requestProperties, requestMessageBody);
