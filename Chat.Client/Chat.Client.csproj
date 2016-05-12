@@ -59,6 +59,8 @@
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="ClientProgram.cs" />
+    <Compile Include="Display.cs" />
+    <Compile Include="IDisplay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
