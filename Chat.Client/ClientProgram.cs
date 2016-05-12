@@ -1,5 +1,4 @@
 ﻿using Castle.Windsor;
-using System;
 using System.Threading.Tasks;
 
 namespace Chat
