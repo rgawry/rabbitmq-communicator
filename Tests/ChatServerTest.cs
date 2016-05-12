@@ -3,7 +3,7 @@
 namespace Chat
 {
     [TestFixture]
-    public class ServerLogicTest
+    public class ChatServerTest
     {
         [Test]
         public void ShouldUserLogIn()

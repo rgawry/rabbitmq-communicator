@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RabbitMqBusTest.cs" />
-    <Compile Include="ServerLogicTest.cs" />
+    <Compile Include="ChatServerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
