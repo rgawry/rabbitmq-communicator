@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="ChitChatServer.cs" />
+    <Compile Include="IChitChatServer.cs" />
     <Compile Include="ServerInstaller.cs" />
     <Compile Include="ServerProgram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

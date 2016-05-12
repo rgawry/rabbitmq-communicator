@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Chat
 {
-    public sealed class ChitChatServer : IInitializable
+    public sealed class ChitChatServer : IChitChatServer, IInitializable
     {
         private List<string> _users = new List<string>();
         private Dictionary<string, List<string>> _usersInRooms = new Dictionary<string, List<string>>();
