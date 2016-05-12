@@ -8,14 +8,14 @@ namespace Chat
 {
     public class Display : IDisplay
     {
-        public void OnKeyboard()
+        public string OnKeyboard()
         {
-            throw new NotImplementedException();
+            return Console.ReadLine();
         }
 
         public void Print(string text)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(text);
         }
     }
 }

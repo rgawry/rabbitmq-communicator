@@ -1,15 +1,8 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Chat
+﻿namespace Chat
 {
     public interface IDisplay
     {
         void Print(string text);
-        void OnKeyboard();
+        string OnKeyboard();
     }
 }
