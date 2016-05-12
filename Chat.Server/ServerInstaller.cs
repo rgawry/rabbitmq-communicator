@@ -13,6 +13,8 @@ namespace Chat
                     .ImplementedBy<RabbitMqServerBusFactory>(),
                 Component.For<IServerBus>()
                     .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqServerBusFactory>().Create()),
+                Component.For<IDisplay>()
+                    .ImplementedBy<ConsoleDisplay>(),
                 Component.For<ChatServer>());
         }
     }

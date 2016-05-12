@@ -9,7 +9,7 @@ namespace Chat
         [Test]
         public void ShouldUserLogIn()
         {
-            var chatServer = new ChatServer(Substitute.For<IServerBus>());
+            var chatServer = new ChatServer(Substitute.For<IServerBus>(), Substitute.For<IDisplay>());
             chatServer.Initialize();
             var request = new OpenSessionRequest { UserName = "login1" };
 
@@ -21,7 +21,7 @@ namespace Chat
         [Test]
         public void ShouldUserSwitchRoom()
         {
-            var chatServer = new ChatServer(Substitute.For<IServerBus>());
+            var chatServer = new ChatServer(Substitute.For<IServerBus>(), Substitute.For<IDisplay>());
             chatServer.Initialize();
             var request = new JoinRoomRequest { RoomName = "testRoomName", Token = "login1" };
 

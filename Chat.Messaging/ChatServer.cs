@@ -5,6 +5,7 @@ namespace Chat
 {
     public sealed class ChatServer : IInitializable
     {
+        private IDisplay _display;
         private IServerBus _serverBus;
         private List<string> _users = new List<string>();
         private Dictionary<string, List<string>> _usersInRooms = new Dictionary<string, List<string>>();
@@ -12,9 +13,10 @@ namespace Chat
         public Dictionary<string, List<string>> UsersInRooms { get { return _usersInRooms; } }
         public string DefaultRoomName { get { return "default"; } }
 
-        public ChatServer(IServerBus serverBus)
+        public ChatServer(IServerBus serverBus, IDisplay display)
         {
             _serverBus = serverBus;
+            _display = display;
         }
 
         public void Initialize()
@@ -31,6 +33,7 @@ namespace Chat
                 isLogged = true;
                 _users.Add(request.UserName);
                 _usersInRooms[DefaultRoomName].Add(request.UserName);
+                _display.Print("user '" + request.UserName + "' logged");
             }
             return new OpenSessionResponse { IsLogged = isLogged };
         }
