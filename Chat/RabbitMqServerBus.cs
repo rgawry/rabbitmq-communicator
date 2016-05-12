@@ -38,7 +38,9 @@ namespace Chat
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
         {
-            _requestsHandlers.TryAdd(typeof(TRequest), handler);
+            var requestType = typeof(TRequest);
+            if (_requestsHandlers.ContainsKey(requestType)) throw new ArgumentException("Handler already registered.");
+            _requestsHandlers.TryAdd(requestType, handler);
         }
 
         private void ListenOnRequestQueue()
