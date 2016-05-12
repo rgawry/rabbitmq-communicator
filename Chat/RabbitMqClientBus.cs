@@ -59,11 +59,11 @@ namespace Chat
             requestProperties.CorrelationId = correlationId;
             requestProperties.Type = requestType.FullName + ", " + requestType.Assembly.FullName;
 
-            var requestMessageBody = _messageSerializer.Serialize(request);
-            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, requestProperties, requestMessageBody);
-
             var responseHandler = ResponseHandler.Create<TResponse>();
             _taskCollection.TryAdd(correlationId, responseHandler);
+
+            var requestMessageBody = _messageSerializer.Serialize(request);
+            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, requestProperties, requestMessageBody);
 
             return ((TaskCompletionSource<TResponse>)responseHandler.Tcs).Task;
         }
