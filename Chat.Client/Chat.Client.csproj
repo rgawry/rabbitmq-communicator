@@ -58,8 +58,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="ChatClient.cs" />
+    <Compile Include="ClientInstaller.cs" />
     <Compile Include="ClientProgram.cs" />
-    <Compile Include="Display.cs" />
+    <Compile Include="ConsoleDisplay.cs" />
+    <Compile Include="IChatClient.cs" />
     <Compile Include="IDisplay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
