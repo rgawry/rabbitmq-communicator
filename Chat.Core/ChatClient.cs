@@ -2,7 +2,7 @@
 
 namespace Chat
 {
-    public class ChatClient : IChatClient
+    public class ChatClient
     {
         private IClientBus _clientBus;
         private IDisplay _display;

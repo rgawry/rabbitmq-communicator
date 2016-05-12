@@ -11,8 +11,8 @@ namespace Chat
             container.Register(
                 Component.For<IDisplay>()
                     .ImplementedBy<ConsoleDisplay>(),
-                Component.For<IChatClient>()
-                    .ImplementedBy<ChatClient>());
+                Component.For<ChatClient>()
+                    .LifeStyle.Transient);
         }
     }
 }

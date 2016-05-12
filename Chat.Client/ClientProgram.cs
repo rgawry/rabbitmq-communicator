@@ -6,7 +6,7 @@ namespace Chat
     class ClientProgram
     {
         private static IWindsorContainer _container = Bootstrapper.BootstrapContainer();
-        private static IChatClient _chatClient;
+        private static ChatClient _chatClient;
 
         static void Main(string[] args)
         {
@@ -14,7 +14,7 @@ namespace Chat
             {
                 try
                 {
-                    _chatClient = _container.Resolve<IChatClient>();
+                    _chatClient = _container.Resolve<ChatClient>();
                     await _chatClient.TryLogIn();
                 }
                 finally
