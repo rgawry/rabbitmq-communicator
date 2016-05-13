@@ -9,10 +9,12 @@ namespace Chat
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<IRabbitMqServerBusFactory>()
-                    .ImplementedBy<RabbitMqServerBusFactory>(),
+                Component.For<IMessagingProviderFactory>()
+                    .ImplementedBy<MessagingProviderFactory>(),
+                Component.For<IMessagingProvider>()
+                    .UsingFactoryMethod(kernel => kernel.Resolve<IMessagingProviderFactory>().Create()),
                 Component.For<IServerBus>()
-                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqServerBusFactory>().Create()),
+                    .ImplementedBy<ServerBus>(),
                 Component.For<IDisplay>()
                     .ImplementedBy<ConsoleDisplay>(),
                 Component.For<ChatServer>());

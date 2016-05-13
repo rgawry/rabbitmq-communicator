@@ -103,11 +103,13 @@ namespace Chat
             return clientBus;
         }
 
-        private static RabbitMqServerBus GetServerBus()
+        private static ServerBus GetServerBus()
         {
             var messageSerializer = new JsonMessageSerializer();
             var connectionServer = CreateConnection();
-            var serverBus = new RabbitMqServerBus(config.ExchangeRequestName, config.QueueRequestName, connectionServer, messageSerializer);
+            var messagingProvider = new MessagingProvider(config.ExchangeRequestName, config.QueueRequestName, connectionServer);
+            messagingProvider.Initialize();
+            var serverBus = new ServerBus(messageSerializer, messagingProvider);
             serverBus.Initialize();
 
             return serverBus;
