@@ -15,7 +15,7 @@ namespace Chat
                     .UsingFactoryMethod(kernel => kernel.Resolve<IMessagingProviderFactory>().Create()),
                 Component.For<IServerBus>()
                     .ImplementedBy<ServerBus>()
-                        .DependsOn(Dependency.OnValue("requestStream", container.Resolve<Configuration>().QueueRequestName)),
+                        .DependsOn(Dependency.OnAppSettingsValue("requestStream", "queue-request-name")),
                 Component.For<IDisplay>()
                     .ImplementedBy<ConsoleDisplay>(),
                 Component.For<ChatServer>());

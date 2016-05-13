@@ -40,6 +40,7 @@ namespace Chat
         public void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler)
         {
             _handler = handler;
+            Disposable.Create(() => _handler -= handler).DisposeWith(_thisDisposer);
         }
 
         public void Send(Envelope envelope)

@@ -31,10 +31,10 @@ namespace Chat
 
         public void Initialize()
         {
-            _messagingProvider.Receive(DeliveryHandler);
             TimeoutValue = DEFAULT_TIMEOUT_VALUE;
             _responseQueueName = _messagingProvider.CreateStream();
             _messagingProvider.ListenOn(_responseQueueName);
+            _messagingProvider.Receive(DeliveryHandler);
             Disposable.Create(() => _cancelationTokenSource.Cancel()).DisposeWith(_thisDisposer);
             _cancelationTokenSource = new CancellationTokenSource().DisposeWith(_thisDisposer);
             _cancelationToken = _cancelationTokenSource.Token;
