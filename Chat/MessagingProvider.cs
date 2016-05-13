@@ -30,7 +30,7 @@ namespace Chat
             _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
         }
 
-        public string Create()
+        public string CreateStream()
         {
             var queueName = _channelProduce.QueueDeclare().QueueName;
             _channelProduce.QueueBind(queueName, _exchangeName, queueName);

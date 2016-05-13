@@ -33,7 +33,7 @@ namespace Chat
         {
             _messagingProvider.Receive(DeliveryHandler);
             TimeoutValue = DEFAULT_TIMEOUT_VALUE;
-            _responseQueueName = _messagingProvider.Create();
+            _responseQueueName = _messagingProvider.CreateStream();
             _messagingProvider.ListenOn(_responseQueueName);
             Disposable.Create(() => _cancelationTokenSource.Cancel()).DisposeWith(_thisDisposer);
             _cancelationTokenSource = new CancellationTokenSource().DisposeWith(_thisDisposer);
