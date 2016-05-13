@@ -11,16 +11,19 @@ namespace Chat
         private IMessagingProvider _messagingProvider;
         private ConcurrentDictionary<Type, Delegate> _requestsHandlers = new ConcurrentDictionary<Type, Delegate>();
         private CompositeDisposable _thisDisposer = new CompositeDisposable();
+        private string _requestStream;
 
-        public ServerBus(IMessageSerializer messageSerializer, IMessagingProvider messaggingProvider)
+        public ServerBus(IMessageSerializer messageSerializer, IMessagingProvider messaggingProvider, string requestStream)
         {
             _messageSerializer = messageSerializer;
             _messagingProvider = messaggingProvider;
+            _requestStream = requestStream;
         }
 
         public void Initialize()
         {
             _messagingProvider.Receive(DeliveryHandler);
+            _messagingProvider.ListenOn(_requestStream);
         }
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
@@ -33,10 +36,11 @@ namespace Chat
         private void DeliveryHandler(object s, EnvelopeDeliveryEventArgs args)
         {
             var requestEnvelope = args.Envelope;
-            var requestMessage = _messageSerializer.Deserialize(requestEnvelope.Body, args.Envelope.BodyType);
+            var requestType = Type.GetType(args.Envelope.BodyType);
+            var requestMessage = _messageSerializer.Deserialize(requestEnvelope.Body, requestType);
 
             var requestHandler = default(Delegate);
-            if (!_requestsHandlers.TryGetValue(requestEnvelope.BodyType, out requestHandler)) return;
+            if (!_requestsHandlers.TryGetValue(requestType, out requestHandler)) return;
 
             var response = requestHandler.DynamicInvoke(requestMessage);
 
@@ -45,7 +49,7 @@ namespace Chat
             {
                 Body = responseMessageBody,
                 CorrelationId = requestEnvelope.CorrelationId,
-                ReplyTo = requestEnvelope.ReplyTo,
+                SendTo = requestEnvelope.ReplyTo,
                 BodyType = requestEnvelope.BodyType
             };
             _messagingProvider.Send(responseEnvelope);

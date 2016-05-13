@@ -21,7 +21,7 @@ namespace Chat
             using (var serverBus = GetServerBus())
             {
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
-
+                
                 var response = await clientBus.Request(new TestMessageA { Name = "login1" }).Response<TestMessageC>();
 
                 Assert.That(response.Done, Is.True);
@@ -94,11 +94,13 @@ namespace Chat
             return connectionFactory.CreateConnection();
         }
 
-        private static RabbitMqClientBus GetClientBus()
+        private static ClientBus GetClientBus()
         {
             var messageSerializer = new JsonMessageSerializer();
             var connectionClient = CreateConnection();
-            var clientBus = new RabbitMqClientBus(config.ExchangeRequestName, config.QueueRequestName, connectionClient, messageSerializer);
+            var messagingProvider = new MessagingProvider(config.ExchangeRequestName, connectionClient);
+            messagingProvider.Initialize();
+            var clientBus = new ClientBus(messageSerializer, messagingProvider, config.QueueRequestName);
             clientBus.Initialize();
             return clientBus;
         }
@@ -107,9 +109,9 @@ namespace Chat
         {
             var messageSerializer = new JsonMessageSerializer();
             var connectionServer = CreateConnection();
-            var messagingProvider = new MessagingProvider(config.ExchangeRequestName, config.QueueRequestName, connectionServer);
+            var messagingProvider = new MessagingProvider(config.ExchangeRequestName, connectionServer);
             messagingProvider.Initialize();
-            var serverBus = new ServerBus(messageSerializer, messagingProvider);
+            var serverBus = new ServerBus(messageSerializer, messagingProvider, config.QueueRequestName);
             serverBus.Initialize();
 
             return serverBus;

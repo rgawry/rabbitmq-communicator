@@ -16,7 +16,7 @@ namespace Chat
         public MessagingProvider Create()
         {
             _connection = new ConnectionFactory { HostName = _config.HostName, Port = _config.Port }.CreateConnection();
-            return new MessagingProvider(_config.ExchangeRequestName, _config.QueueRequestName, _connection);
+            return new MessagingProvider(_config.ExchangeRequestName, _connection);
         }
 
         public void Dispose()

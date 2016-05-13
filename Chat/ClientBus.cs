@@ -1,6 +1,4 @@
 ﻿using Castle.Core;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
 using System.Reactive.Disposables;
@@ -9,82 +7,71 @@ using System.Threading.Tasks;
 
 namespace Chat
 {
-    public sealed class RabbitMqClientBus : IClientBus, IDisposable, IInitializable
+    public sealed class ClientBus : IClientBus, IDisposable, IInitializable
     {
         private const float DEFAULT_TIMEOUT_VALUE = 5;
 
         private CompositeDisposable _thisDisposer = new CompositeDisposable();
         private CancellationTokenSource _cancelationTokenSource;
         private CancellationToken _cancelationToken;
-        private readonly string _exchangeName;
-        private readonly string _requestQueueName;
         private string _responseQueueName;
         private IMessageSerializer _messageSerializer;
-        private IConnection _connection;
-        private IModel _channelConsume;
-        private IModel _channelProduce;
-        private EventingBasicConsumer _consumer;
-        private EventHandler<BasicDeliverEventArgs> _consumerReceivedHandler;
         private ConcurrentDictionary<string, ResponseHandler> _taskCollection = new ConcurrentDictionary<string, ResponseHandler>();
+        private IMessagingProvider _messagingProvider;
+        private string _requestStream;
 
         public float TimeoutValue { get; set; }
 
-        public RabbitMqClientBus(string exchangeName, string requestQueueName, IConnection connection, IMessageSerializer messageSerializer)
+        public ClientBus(IMessageSerializer messageSerializer, IMessagingProvider messagingProvider, string requestStream)
         {
-            _exchangeName = exchangeName;
-            _requestQueueName = requestQueueName;
-            _connection = connection;
             _messageSerializer = messageSerializer;
+            _messagingProvider = messagingProvider;
+            _requestStream = requestStream;
         }
 
         public void Initialize()
         {
+            _messagingProvider.Receive(DeliveryHandler);
             TimeoutValue = DEFAULT_TIMEOUT_VALUE;
-            _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);
-            _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
-            _responseQueueName = _channelProduce.QueueDeclare().QueueName;
+            _responseQueueName = _messagingProvider.Create();
+            _messagingProvider.ListenOn(_responseQueueName);
             Disposable.Create(() => _cancelationTokenSource.Cancel()).DisposeWith(_thisDisposer);
             _cancelationTokenSource = new CancellationTokenSource().DisposeWith(_thisDisposer);
             _cancelationToken = _cancelationTokenSource.Token;
-            ListenOnResponseQueue();
             Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
         }
 
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
-            var correlationId = Guid.NewGuid().ToString();
             var requestType = typeof(TRequest);
-            var requestProperties = _channelProduce.CreateBasicProperties();
-            requestProperties.ReplyTo = _responseQueueName;
-            requestProperties.CorrelationId = correlationId;
-            requestProperties.Type = requestType.FullName + ", " + requestType.Assembly.FullName;
-
+            var correlationId = Guid.NewGuid().ToString();
             var responseHandler = ResponseHandler.Create<TResponse>();
             _taskCollection.TryAdd(correlationId, responseHandler);
-
             var requestMessageBody = _messageSerializer.Serialize(request);
-            _channelProduce.BasicPublish(_exchangeName, _requestQueueName, requestProperties, requestMessageBody);
+
+            var requestEnvelope = new Envelope
+            {
+                CorrelationId = correlationId,
+                BodyType = requestType.FullName + ", " + requestType.Assembly.FullName,
+                SendTo = _requestStream,
+                ReplyTo = _responseQueueName,
+                Body = requestMessageBody
+            };
+            _messagingProvider.Send(requestEnvelope);
 
             return ((TaskCompletionSource<TResponse>)responseHandler.Tcs).Task;
         }
 
-        private void ListenOnResponseQueue()
+        private void DeliveryHandler(object sender, EnvelopeDeliveryEventArgs args)
         {
-            _channelConsume.QueueBind(_responseQueueName, _exchangeName, _responseQueueName);
-            _consumerReceivedHandler = (sender, args) =>
-            {
-                var correlationId = args.BasicProperties.CorrelationId;
-                var responseHandler = default(ResponseHandler);
+            var responseEnvelope = args.Envelope;
+            var correlationId = responseEnvelope.CorrelationId;
+            var responseHandler = default(ResponseHandler);
 
-                if (!_taskCollection.TryRemove(correlationId, out responseHandler)) return;
+            if (!_taskCollection.TryRemove(correlationId, out responseHandler)) return;
 
-                var responseMessage = _messageSerializer.Deserialize(args.Body, responseHandler.ResponseType);
-                responseHandler.OnMessage(responseMessage);
-            };
-            _consumer = new EventingBasicConsumer(_channelConsume);
-            _consumer.Received += _consumerReceivedHandler;
-            Disposable.Create(() => _consumer.Received -= _consumerReceivedHandler).DisposeWith(_thisDisposer);
-            _channelConsume.BasicConsume(_responseQueueName, true, _consumer);
+            var responseMessage = _messageSerializer.Deserialize(responseEnvelope.Body, responseHandler.ResponseType);
+            responseHandler.OnMessage(responseMessage);
         }
 
         private async Task ScanForTimeout()

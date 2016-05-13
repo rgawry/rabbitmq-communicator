@@ -9,11 +9,14 @@ namespace Chat
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<IRabbitMqClientBusFactory>()
-                    .ImplementedBy<RabbitMqClientBusFactory>(),
+                Component.For<IMessagingProviderFactory>()
+                    .ImplementedBy<MessagingProviderFactory>(),
+                Component.For<IMessagingProvider>()
+                    .UsingFactoryMethod(kernel => kernel.Resolve<IMessagingProviderFactory>().Create()),
                 Component.For<IClientBus>()
-                    .UsingFactoryMethod(kernel => kernel.Resolve<IRabbitMqClientBusFactory>().Create())
-                        .LifeStyle.Transient,
+                    .ImplementedBy<ClientBus>()
+                        .DependsOn(Dependency.OnValue("requestStream", container.Resolve<Configuration>().QueueRequestName))
+                            .LifeStyle.Transient,
                 Component.For<IDisplay>()
                     .ImplementedBy<ConsoleDisplay>(),
                 Component.For<ChatClient>()
