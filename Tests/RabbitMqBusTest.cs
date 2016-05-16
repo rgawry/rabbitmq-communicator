@@ -17,8 +17,8 @@ namespace Chat
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
+            var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
-            using (var serverBus = GetServerBus())
             {
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
                 
@@ -31,8 +31,8 @@ namespace Chat
         [Test]
         public async Task ShouldMatchRequestWithResponse()
         {
+            var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
-            using (var serverBus = GetServerBus())
             {
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req =>
                 {
@@ -53,8 +53,8 @@ namespace Chat
         [Test]
         public async Task ShouldMatchEachRequestTypeWithResponse()
         {
+            var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
-            using (var serverBus = GetServerBus())
             {
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
                 serverBus.AddHandler<TestMessageB, TestMessageC>(req => new TestMessageC { Done = false });

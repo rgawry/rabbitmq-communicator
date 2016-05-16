@@ -1,16 +1,14 @@
 ﻿using Castle.Core;
 using System;
 using System.Collections.Concurrent;
-using System.Reactive.Disposables;
 
 namespace Chat
 {
-    public sealed class ServerBus : IServerBus, IDisposable, IInitializable
+    public sealed class ServerBus : IServerBus, IInitializable
     {
         private IMessageSerializer _messageSerializer;
         private IMessagingProvider _messagingProvider;
         private ConcurrentDictionary<Type, Delegate> _requestsHandlers = new ConcurrentDictionary<Type, Delegate>();
-        private CompositeDisposable _thisDisposer = new CompositeDisposable();
         private string _requestStream;
 
         public ServerBus(IMessageSerializer messageSerializer, IMessagingProvider messaggingProvider, string requestStream)
@@ -53,11 +51,6 @@ namespace Chat
                 BodyType = requestEnvelope.BodyType
             };
             _messagingProvider.Send(responseEnvelope);
-        }
-
-        public void Dispose()
-        {
-            _thisDisposer.Dispose();
         }
     }
 }
