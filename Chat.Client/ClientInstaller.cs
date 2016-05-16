@@ -9,10 +9,6 @@ namespace Chat
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<IMessagingProviderFactory>()
-                    .ImplementedBy<MessagingProviderFactory>(),
-                Component.For<IMessagingProvider>()
-                    .UsingFactoryMethod(kernel => kernel.Resolve<IMessagingProviderFactory>().Create()),
                 Component.For<IClientBus>()
                     .ImplementedBy<ClientBus>()
                         .DependsOn(Dependency.OnAppSettingsValue("requestStream", "queue-request-name"))
