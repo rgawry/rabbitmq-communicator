@@ -21,7 +21,7 @@ namespace Chat
             using (var clientBus = GetClientBus())
             {
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
-                
+
                 var response = await clientBus.Request(new TestMessageA { Name = "login1" }).Response<TestMessageC>();
 
                 Assert.That(response.Done, Is.True);
@@ -70,7 +70,6 @@ namespace Chat
         }
 
         [Test]
-        [Timeout(3000)]
         public void ShouldRequestTimeout()
         {
             AsyncTestDelegate testDelegate = async () =>

@@ -14,7 +14,7 @@ namespace Chat
         private CompositeDisposable _thisDisposer = new CompositeDisposable();
         private CancellationTokenSource _cancelationTokenSource;
         private CancellationToken _cancelationToken;
-        private string _responseQueueName;
+        private string _responseName;
         private IMessageSerializer _messageSerializer;
         private ConcurrentDictionary<string, ResponseHandler> _taskCollection = new ConcurrentDictionary<string, ResponseHandler>();
         private IMessagingProvider _messagingProvider;
@@ -32,9 +32,8 @@ namespace Chat
         public void Initialize()
         {
             TimeoutValue = DEFAULT_TIMEOUT_VALUE;
-            _responseQueueName = _messagingProvider.CreateStream();
-            _messagingProvider.ListenOn(_responseQueueName);
-            _messagingProvider.Receive(DeliveryHandler);
+            _responseName = Guid.NewGuid().ToString();
+            _messagingProvider.Receive(DeliveryHandler, _responseName);
             Disposable.Create(() => _cancelationTokenSource.Cancel()).DisposeWith(_thisDisposer);
             _cancelationTokenSource = new CancellationTokenSource().DisposeWith(_thisDisposer);
             _cancelationToken = _cancelationTokenSource.Token;
@@ -54,7 +53,7 @@ namespace Chat
                 CorrelationId = correlationId,
                 BodyType = requestType.FullName + ", " + requestType.Assembly.FullName,
                 SendTo = _requestStream,
-                ReplyTo = _responseQueueName,
+                ReplyTo = _responseName,
                 Body = requestMessageBody
             };
             _messagingProvider.Send(requestEnvelope);

@@ -4,9 +4,7 @@ namespace Chat
 {
     public interface IMessagingProvider
     {
-        string CreateStream();
-        void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler);
+        void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler, string requestName);
         void Send(Envelope envelope);
-        void ListenOn(string streamName);
     }
 }

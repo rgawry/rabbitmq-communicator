@@ -16,7 +16,6 @@ namespace Chat
         private IModel _channelProduce;
         private EventingBasicConsumer _consumer;
         private EventHandler<BasicDeliverEventArgs> _consumerReceivedHandler;
-        private EventHandler<EnvelopeDeliveryEventArgs> _handler;
 
         public MessagingProvider(string exchangeName, IConnection connection)
         {
@@ -30,30 +29,12 @@ namespace Chat
             _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
         }
 
-        public string CreateStream()
+        public void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler, string requestName)
         {
-            var queueName = _channelProduce.QueueDeclare().QueueName;
-            _channelProduce.QueueBind(queueName, _exchangeName, queueName);
-            return queueName;
-        }
+            if (handler == null || string.IsNullOrWhiteSpace(requestName)) throw new ArgumentException();
 
-        public void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler)
-        {
-            _handler = handler;
-            Disposable.Create(() => _handler -= handler).DisposeWith(_thisDisposer);
-        }
-
-        public void Send(Envelope envelope)
-        {
-            var properties = _channelProduce.CreateBasicProperties();
-            if (envelope.ReplyTo != null) properties.ReplyTo = envelope.ReplyTo;
-            properties.CorrelationId = envelope.CorrelationId;
-            properties.Type = envelope.BodyType.ToString();
-            _channelProduce.BasicPublish(_exchangeName, envelope.SendTo, properties, envelope.Body);
-        }
-
-        public void ListenOn(string streamName)
-        {
+            _channelConsume.QueueDeclare(requestName, false, false, true, null);
+            _channelConsume.QueueBind(requestName, _exchangeName, requestName);
             _consumerReceivedHandler = (sender, args) =>
             {
                 Task.Run(() =>
@@ -65,13 +46,22 @@ namespace Chat
                         ReplyTo = args.BasicProperties.ReplyTo,
                         BodyType = args.BasicProperties.Type
                     };
-                    if (_handler != null) _handler(this, new EnvelopeDeliveryEventArgs(envelope));
+                    handler(this, new EnvelopeDeliveryEventArgs(envelope));
                 });
             };
             _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _consumerReceivedHandler;
             Disposable.Create(() => _consumer.Received -= _consumerReceivedHandler).DisposeWith(_thisDisposer);
-            _channelConsume.BasicConsume(streamName, true, _consumer);
+            _channelConsume.BasicConsume(requestName, true, _consumer);
+        }
+
+        public void Send(Envelope envelope)
+        {
+            var properties = _channelProduce.CreateBasicProperties();
+            if (envelope.ReplyTo != null) properties.ReplyTo = envelope.ReplyTo;
+            properties.CorrelationId = envelope.CorrelationId;
+            properties.Type = envelope.BodyType.ToString();
+            _channelProduce.BasicPublish(_exchangeName, envelope.SendTo, properties, envelope.Body);
         }
 
         public void Dispose()

@@ -6,22 +6,21 @@ namespace Chat
 {
     public sealed class ServerBus : IServerBus, IInitializable
     {
+        private string _requestStream;
         private IMessageSerializer _messageSerializer;
         private IMessagingProvider _messagingProvider;
         private ConcurrentDictionary<Type, Delegate> _requestsHandlers = new ConcurrentDictionary<Type, Delegate>();
-        private string _requestStream;
 
         public ServerBus(IMessageSerializer messageSerializer, IMessagingProvider messaggingProvider, string requestStream)
         {
+            _requestStream = requestStream;
             _messageSerializer = messageSerializer;
             _messagingProvider = messaggingProvider;
-            _requestStream = requestStream;
         }
 
         public void Initialize()
         {
-            _messagingProvider.Receive(DeliveryHandler);
-            _messagingProvider.ListenOn(_requestStream);
+            _messagingProvider.Receive(DeliveryHandler, _requestStream);
         }
 
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
