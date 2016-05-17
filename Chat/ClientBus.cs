@@ -12,21 +12,21 @@ namespace Chat
         private const float DEFAULT_TIMEOUT_VALUE = 5;
 
         private CompositeDisposable _thisDisposer = new CompositeDisposable();
-        private CancellationTokenSource _cancelationTokenSource;
-        private CancellationToken _cancelationToken;
+        private string _requestName;
         private string _responseName;
         private IMessageSerializer _messageSerializer;
-        private ConcurrentDictionary<string, ResponseHandler> _taskCollection = new ConcurrentDictionary<string, ResponseHandler>();
         private IMessagingProvider _messagingProvider;
-        private string _requestStream;
+        private CancellationTokenSource _cancelationTokenSource;
+        private CancellationToken _cancelationToken;
+        private ConcurrentDictionary<string, ResponseHandler> _taskCollection = new ConcurrentDictionary<string, ResponseHandler>();
 
         public float TimeoutValue { get; set; }
 
-        public ClientBus(IMessageSerializer messageSerializer, IMessagingProvider messagingProvider, string requestStream)
+        public ClientBus(IMessageSerializer messageSerializer, IMessagingProvider messagingProvider, string requestName)
         {
             _messageSerializer = messageSerializer;
             _messagingProvider = messagingProvider;
-            _requestStream = requestStream;
+            _requestName = requestName;
         }
 
         public void Initialize()
@@ -52,7 +52,7 @@ namespace Chat
             {
                 CorrelationId = correlationId,
                 BodyType = requestType.FullName + ", " + requestType.Assembly.FullName,
-                SendTo = _requestStream,
+                SendTo = _requestName,
                 ReplyTo = _responseName,
                 Body = requestMessageBody
             };
