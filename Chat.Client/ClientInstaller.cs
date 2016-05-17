@@ -11,7 +11,7 @@ namespace Chat
             container.Register(
                 Component.For<IClientBus>()
                     .ImplementedBy<ClientBus>()
-                        .DependsOn(Dependency.OnAppSettingsValue("requestStream", "queue-request-name"))
+                        .DependsOn(Dependency.OnAppSettingsValue("requestName", "queue-request-name"))
                             .LifeStyle.Transient,
                 Component.For<IDisplay>()
                     .ImplementedBy<ConsoleDisplay>(),
