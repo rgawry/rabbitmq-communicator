@@ -78,8 +78,10 @@
     <Compile Include="ChatClient.cs" />
     <Compile Include="ChatServer.cs" />
     <Compile Include="ClientBusExtensions.cs" />
+    <Compile Include="CommandProcessor.cs" />
     <Compile Include="CompositeDisposableExtensions.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ICommandProcessor.cs" />
     <Compile Include="TextDisplay.cs" />
     <Compile Include="IDisplay.cs" />
     <Compile Include="IMessageSerializer.cs" />

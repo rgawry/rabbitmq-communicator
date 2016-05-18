@@ -10,6 +10,8 @@ namespace Chat
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
+                Component.For<ICommandProcessor>()
+                    .ImplementedBy<CommandProcessor>(),
                 Component.For<IMessagingProviderFactory>()
                     .ImplementedBy<MessagingProviderFactory>(),
                 Component.For<IMessagingProvider>()
