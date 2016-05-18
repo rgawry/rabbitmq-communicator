@@ -13,8 +13,6 @@ namespace Chat
                     .ImplementedBy<ClientBus>()
                         .DependsOn(Dependency.OnAppSettingsValue("requestName", "queue-request-name"))
                             .LifeStyle.Transient,
-                Component.For<IDisplay>()
-                    .ImplementedBy<ConsoleDisplay>(),
                 Component.For<ChatClient>()
                     .LifeStyle.Transient);
         }

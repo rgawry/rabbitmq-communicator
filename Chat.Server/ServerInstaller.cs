@@ -12,8 +12,6 @@ namespace Chat
                 Component.For<IServerBus>()
                     .ImplementedBy<ServerBus>()
                         .DependsOn(Dependency.OnAppSettingsValue("requestName", "queue-request-name")),
-                Component.For<IDisplay>()
-                    .ImplementedBy<ConsoleDisplay>(),
                 Component.For<ChatServer>());
         }
     }

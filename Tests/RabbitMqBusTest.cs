@@ -34,6 +34,7 @@ namespace Chat
             var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
             {
+                clientBus.TimeoutValue = 999f;
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req =>
                 {
                     if (req.Name == "login1") Thread.Sleep(500);

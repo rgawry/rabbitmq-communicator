@@ -1,6 +1,7 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using System;
 
 namespace Chat
 {
@@ -16,7 +17,12 @@ namespace Chat
                         .LifeStyle.Transient,
                 Component.For<Configuration>(),
                 Component.For<IMessageSerializer>()
-                    .ImplementedBy<JsonMessageSerializer>());
+                    .ImplementedBy<JsonMessageSerializer>(),
+                Component.For<IDisplay>()
+                    .ImplementedBy<TextDisplay>()
+                        .DependsOn(Dependency.OnValue("input", Console.In))
+                        .DependsOn(Dependency.OnValue("output", Console.Out))
+                            .LifeStyle.Transient);
         }
     }
 }

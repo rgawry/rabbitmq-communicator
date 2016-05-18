@@ -80,7 +80,7 @@
     <Compile Include="ClientBusExtensions.cs" />
     <Compile Include="CompositeDisposableExtensions.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="ConsoleDisplay.cs" />
+    <Compile Include="TextDisplay.cs" />
     <Compile Include="IDisplay.cs" />
     <Compile Include="IMessageSerializer.cs" />
     <Compile Include="IMessagingProvider.cs" />

@@ -1,8 +1,11 @@
-﻿namespace Chat
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Chat
 {
     public interface IDisplay
     {
-        void Print(string text);
-        string OnKeyboard();
+        Task Print(string text);
+        event EventHandler<string> OneLine;
     }
 }

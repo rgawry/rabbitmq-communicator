@@ -1,5 +1,4 @@
 ﻿using Castle.Windsor;
-using System.Threading.Tasks;
 
 namespace Chat
 {
@@ -10,18 +9,15 @@ namespace Chat
 
         static void Main(string[] args)
         {
-            Task.Run(async () =>
+            try
             {
-                try
-                {
-                    _chatClient = _container.Resolve<ChatClient>();
-                    await _chatClient.TryLogIn();
-                }
-                finally
-                {
-                    _container.Dispose();
-                }
-            }).Wait();
+                _chatClient = _container.Resolve<ChatClient>();
+                while (true) ;
+            }
+            finally
+            {
+                _container.Dispose();
+            }
         }
     }
 }

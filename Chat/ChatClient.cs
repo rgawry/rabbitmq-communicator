@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using Castle.Core;
+using System;
+using System.Threading.Tasks;
 
 namespace Chat
 {
-    public class ChatClient
+    public class ChatClient : IInitializable
     {
         private IClientBus _clientBus;
         private IDisplay _display;
@@ -13,23 +15,50 @@ namespace Chat
             _display = display;
         }
 
-        public async Task TryLogIn()
+        public void Initialize()
         {
-            while (true)
+            Task.Run(async () =>
             {
-                _display.Print("Login: ");
-                var login = _display.OnKeyboard();
-                var response = await _clientBus.Request(new OpenSessionRequest { UserName = login }).Response<OpenSessionResponse>();
+                _display.OneLine += new EventHandler<string>(async (s, e) => await OnOneLine(s, e));
+                await PrintWelcome();
+            }).Wait();
+        }
 
-                if (response.IsLogged)
-                {
-                    _display.Print("Logged in as '" + login + "'");
-                    break;
-                }
-                else
-                {
-                    _display.Print("Cant log in as '" + login + "'");
-                }
+        private async Task OnOneLine(object sender, string value)
+        {
+            if (value.Contains("login"))
+            {
+                await LoginHandler(value.Split(' ')[1]);
+            }
+            else
+            {
+                await _display.Print("Unknown command");
+            }
+        }
+
+        private async Task PrintWelcome()
+        {
+            await _display.Print("Welcome to chat.");
+            await _display.Print("List of available commands: ");
+            await PrintCommands();
+        }
+
+        private async Task PrintCommands()
+        {
+            await _display.Print(" login <username>");
+        }
+
+        private async Task LoginHandler(string value)
+        {
+            var response = await _clientBus.Request(new OpenSessionRequest { UserName = value }).Response<OpenSessionResponse>();
+
+            if (response.IsLogged)
+            {
+                await _display.Print("Logged in as '" + value + "'");
+            }
+            else
+            {
+                await _display.Print("Can't log in as '" + value + "'");
             }
         }
     }
