@@ -2,7 +2,7 @@
 
 namespace Chat
 {
-    public class CommandProcessor : ICommandProcessor
+    public sealed class CommandProcessor : ICommandProcessor
     {
         public Tuple<string, string> Process(string value)
         {

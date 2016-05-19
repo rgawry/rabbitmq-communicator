@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Chat
 {
-    public class ChatClient : IInitializable
+    public sealed class ChatClient : IInitializable
     {
         private const string LOGIN_COMMAND = "login";
 

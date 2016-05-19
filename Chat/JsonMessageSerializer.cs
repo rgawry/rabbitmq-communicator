@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Chat
 {
-    public class JsonMessageSerializer : IMessageSerializer
+    public sealed class JsonMessageSerializer : IMessageSerializer
     {
         public object Deserialize(byte[] message, Type type)
         {
