@@ -40,8 +40,6 @@ namespace Chat
             var command = result.Item1;
             var argument = result.Item2;
 
-            if (string.IsNullOrWhiteSpace(argument)) return;
-
             switch (command)
             {
                 case LOGIN_COMMAND:
@@ -75,6 +73,8 @@ namespace Chat
                 await _display.Print("You arleady logged in.");
                 return;
             }
+
+            if (string.IsNullOrWhiteSpace(value)) await _display.Print("Wrong argument.");
 
             var response = await _clientBus.Request(new OpenSessionRequest { UserName = value }).Response<OpenSessionResponse>();
 
