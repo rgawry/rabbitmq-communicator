@@ -13,6 +13,7 @@ namespace Chat
         private IClientBus _clientBus;
         private IDisplay _display;
         private ICommandProcessor _commandProcessor;
+        private bool _isLogged;
 
         public ChatClient(IClientBus clientBus, IDisplay display, ICommandProcessor commandProcessor)
         {
@@ -38,6 +39,8 @@ namespace Chat
             var result = _commandProcessor.Process(value);
             var command = result.Item1;
             var argument = result.Item2;
+
+            if (string.IsNullOrWhiteSpace(argument)) return;
 
             switch (command)
             {
@@ -67,8 +70,23 @@ namespace Chat
 
         private async Task LoginHandler(string value)
         {
+            if (_isLogged)
+            {
+                await _display.Print("You arleady logged in.");
+                return;
+            }
+
             var response = await _clientBus.Request(new OpenSessionRequest { UserName = value }).Response<OpenSessionResponse>();
-            await _display.Print((response.IsLogged ? "Logged in as '" : "Can't log in as '") + value + "'");
+
+            if (response.IsLogged)
+            {
+                _isLogged = true;   
+                await _display.Print("Logged in as '" + value + "'");
+            }
+            else
+            {
+                await _display.Print("Can't log in as '" + value + "'");
+            }
         }
     }
 }
