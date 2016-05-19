@@ -4,29 +4,15 @@ namespace Chat
 {
     public class CommandProcessor : ICommandProcessor
     {
-        private string _argument;
-        private string _command;
 
-        public void Process(string value)
+        public Tuple<string, string> Process(string value)
         {
             var elements = value.Split(' ');
             if (elements.Length < 2)
             {
-                _command = elements[0];
-                return;
+                return new Tuple<string, string>(elements[0], string.Empty);
             }
-            _command = elements[0];
-            _argument = elements[1];
-        }
-
-        public string GetArgument()
-        {
-            return _argument;
-        }
-
-        public string GetCommand()
-        {
-            return _command;
+            return new Tuple<string, string>(elements[0], elements[1]);
         }
     }
 }

@@ -35,9 +35,9 @@ namespace Chat
         {
             if (string.IsNullOrWhiteSpace(value)) return;
 
-            _commandProcessor.Process(value);
-            var command = _commandProcessor.GetCommand();
-            var argument = _commandProcessor.GetArgument();
+            var result = _commandProcessor.Process(value);
+            var command = result.Item1;
+            var argument = result.Item2;
 
             switch (command)
             {

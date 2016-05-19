@@ -1,9 +1,9 @@
-﻿namespace Chat
+﻿using System;
+
+namespace Chat
 {
     public interface ICommandProcessor
     {
-        void Process(string value);
-        string GetArgument();
-        string GetCommand();
+        Tuple<string, string> Process(string value);
     }
 }
