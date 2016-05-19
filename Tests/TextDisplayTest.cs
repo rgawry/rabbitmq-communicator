@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -15,18 +16,26 @@ namespace Chat
             var reader = Substitute.For<TextReader>();
             var writer = Substitute.For<TextWriter>();
             var display = new TextDisplay(reader, writer);
+            var handler = new EventHandler<string>((s, e) => { Assert.That(e, Is.EqualTo(testInput)); });
 
-            Task.Run(async () =>
+            try
             {
-                while (true)
+                Task.Run(async () =>
                 {
-                    await display.Print("test");
-                }
-            });
+                    while (true)
+                    {
+                        await display.Print("test");
+                    }
+                });
 
-            reader.ReadLineAsync().Returns(testInput);
+                reader.ReadLineAsync().Returns(testInput);
 
-            display.OneLine += (s, e) => { Assert.That(e, Is.EqualTo(testInput)); };
+                display.OneLine += handler;
+            }
+            finally
+            {
+                display.OneLine -= handler;
+            }
         }
     }
 }
