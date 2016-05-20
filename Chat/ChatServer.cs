@@ -1,4 +1,5 @@
 ﻿using Castle.Core;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Chat
@@ -7,10 +8,10 @@ namespace Chat
     {
         private IDisplay _display;
         private IServerBus _serverBus;
-        private List<string> _users = new List<string>();
-        private Dictionary<string, List<string>> _usersInRooms = new Dictionary<string, List<string>>();
+        private SynchronizedCollection<string> _users = new SynchronizedCollection<string>();
+        private ConcurrentDictionary<string, List<string>> _usersInRooms = new ConcurrentDictionary<string, List<string>>();
 
-        public Dictionary<string, List<string>> UsersInRooms { get { return _usersInRooms; } }
+        public ConcurrentDictionary<string, List<string>> UsersInRooms { get { return _usersInRooms; } }
         public string DefaultRoomName { get { return "default"; } }
 
         public ChatServer(IServerBus serverBus, IDisplay display)
@@ -21,13 +22,14 @@ namespace Chat
 
         public void Initialize()
         {
-            _usersInRooms.Add(DefaultRoomName, new List<string>());
+            _usersInRooms.TryAdd(DefaultRoomName, new List<string>());
             _serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(SessionHandler);
         }
 
         internal OpenSessionResponse SessionHandler(OpenSessionRequest request)
         {
             var isLogged = false;
+            var result = string.Empty;
             if (!_users.Contains(request.UserName))
             {
                 isLogged = true;
@@ -40,10 +42,13 @@ namespace Chat
 
         internal void SwitchRoomHandler(JoinRoomRequest request)
         {
-            var defaultRoomUsers = _usersInRooms[DefaultRoomName];
-            if (defaultRoomUsers.Contains(request.Token)) defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(request.Token));
+            var defaultRoomUsers = new List<string>();
+            if (_usersInRooms.TryGetValue(DefaultRoomName, out defaultRoomUsers))
+            {
+                if (defaultRoomUsers.Contains(request.Token)) defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(request.Token));
+            }
 
-            if (!_usersInRooms.ContainsKey(request.RoomName)) _usersInRooms.Add(request.RoomName, new List<string>());
+            _usersInRooms.TryAdd(request.RoomName, new List<string>());
             _usersInRooms[request.RoomName].Add(request.Token);
         }
     }
