@@ -30,10 +30,10 @@ namespace Chat
             _requestsHandlers.TryAdd(requestType, handler);
         }
 
-        private void DeliveryHandler(object s, EnvelopeDeliveryEventArgs args)
+        private void DeliveryHandler(object s, EnvelopeDeliveryEventArgs ea)
         {
-            var requestEnvelope = args.Envelope;
-            var requestType = Type.GetType(args.Envelope.BodyType);
+            var requestEnvelope = ea.Envelope;
+            var requestType = Type.GetType(ea.Envelope.BodyType);
             var requestMessage = _messageSerializer.Deserialize(requestEnvelope.Body, requestType);
 
             var requestHandler = default(Delegate);

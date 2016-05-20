@@ -16,7 +16,7 @@ namespace Chat
             var reader = Substitute.For<TextReader>();
             var writer = Substitute.For<TextWriter>();
             var display = new TextDisplay(reader, writer);
-            var handler = new EventHandler<string>((s, e) => { Assert.That(e, Is.EqualTo(testInput)); });
+            var handler = new EventHandler<TextInputEventArgs>((s, e) => { Assert.That(e, Is.EqualTo(testInput)); });
 
             try
             {

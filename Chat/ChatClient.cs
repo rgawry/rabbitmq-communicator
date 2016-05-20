@@ -27,16 +27,16 @@ namespace Chat
             Task.Run(async () =>
             {
                 _commands.Add(LOGIN_COMMAND);
-                _display.OneLine += new EventHandler<string>(async (s, e) => await OnOneLine(s, e));
+                _display.OneLine += new EventHandler<TextInputEventArgs>(async (s, ea) => await OnOneLine(s, ea));
                 await PrintWelcome();
             }).Wait();
         }
 
-        private async Task OnOneLine(object sender, string value)
+        private async Task OnOneLine(object sender, TextInputEventArgs ea)
         {
-            if (string.IsNullOrWhiteSpace(value)) return;
+            if (string.IsNullOrWhiteSpace(ea.Line)) return;
 
-            var result = _commandProcessor.Process(value);
+            var result = _commandProcessor.Process(ea.Line);
             var command = result.Item1;
             var argument = result.Item2;
 

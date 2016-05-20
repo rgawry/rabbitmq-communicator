@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="ChatClient.cs" />
     <Compile Include="ChatServer.cs" />
+    <Compile Include="TextInputEventArgs.cs" />
     <Compile Include="ClientBusExtensions.cs" />
     <Compile Include="CommandProcessor.cs" />
     <Compile Include="CompositeDisposableExtensions.cs" />

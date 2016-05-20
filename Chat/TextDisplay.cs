@@ -9,7 +9,7 @@ namespace Chat
     {
         private TextReader _input;
         private TextWriter _output;
-        public event EventHandler<string> OneLine;
+        public event EventHandler<TextInputEventArgs> OneLine;
 
         public TextDisplay(TextReader input, TextWriter output)
         {
@@ -25,7 +25,7 @@ namespace Chat
                 {
                     var line = await _input.ReadLineAsync();
                     var handler = OneLine;
-                    if (handler != null) handler(this, line);
+                    if (handler != null) handler(this, new TextInputEventArgs(line));
                 }
             });
         }

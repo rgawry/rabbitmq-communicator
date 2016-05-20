@@ -61,9 +61,9 @@ namespace Chat
             return ((TaskCompletionSource<TResponse>)responseHandler.Tcs).Task;
         }
 
-        private void DeliveryHandler(object sender, EnvelopeDeliveryEventArgs args)
+        private void DeliveryHandler(object sender, EnvelopeDeliveryEventArgs ea)
         {
-            var responseEnvelope = args.Envelope;
+            var responseEnvelope = ea.Envelope;
             var correlationId = responseEnvelope.CorrelationId;
             var responseHandler = default(ResponseHandler);
 

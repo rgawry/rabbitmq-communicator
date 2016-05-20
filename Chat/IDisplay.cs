@@ -6,6 +6,6 @@ namespace Chat
     public interface IDisplay
     {
         Task Print(string text);
-        event EventHandler<string> OneLine;
+        event EventHandler<TextInputEventArgs> OneLine;
     }
 }
