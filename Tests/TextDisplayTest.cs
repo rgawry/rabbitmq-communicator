@@ -20,11 +20,11 @@ namespace Chat
 
             try
             {
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
                     while (true)
                     {
-                        await display.Print("test");
+                        display.Print("test");
                     }
                 });
 

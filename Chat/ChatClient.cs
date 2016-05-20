@@ -24,12 +24,9 @@ namespace Chat
 
         public void Initialize()
         {
-            Task.Run(async () =>
-            {
-                _commands.Add(LOGIN_COMMAND);
-                _display.OneLine += new EventHandler<TextInputEventArgs>(async (s, ea) => await OnOneLine(s, ea));
-                await PrintWelcome();
-            }).Wait();
+            _commands.Add(LOGIN_COMMAND);
+            _display.OneLine += new EventHandler<TextInputEventArgs>(async (s, ea) => await OnOneLine(s, ea));
+            PrintWelcome().Wait();
         }
 
         private async Task OnOneLine(object sender, TextInputEventArgs ea)
@@ -46,15 +43,15 @@ namespace Chat
                     await LoginHandler(argument);
                     break;
                 default:
-                    await _display.Print("Unknown command: " + command);
+                    _display.Print("Unknown command: " + command);
                     break;
             }
         }
 
         private async Task PrintWelcome()
         {
-            await _display.Print("Welcome to chat.");
-            await _display.Print("List of available commands:");
+            _display.Print("Welcome to chat.");
+            _display.Print("List of available commands:");
             await PrintCommands();
         }
 
@@ -62,7 +59,7 @@ namespace Chat
         {
             foreach (var command in _commands)
             {
-                await _display.Print(" " + command);
+                _display.Print(" " + command);
             }
         }
 
@@ -70,22 +67,22 @@ namespace Chat
         {
             if (_isLogged)
             {
-                await _display.Print("You arleady logged in.");
+                _display.Print("You arleady logged in.");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(value)) await _display.Print("Wrong argument.");
+            if (string.IsNullOrWhiteSpace(value)) _display.Print("Wrong argument.");
 
             var response = await _clientBus.Request(new OpenSessionRequest { UserName = value }).Response<OpenSessionResponse>();
 
             if (response.IsLogged)
             {
-                _isLogged = true;   
-                await _display.Print("Logged in as '" + value + "'");
+                _isLogged = true;
+                _display.Print("Logged in as '" + value + "'");
             }
             else
             {
-                await _display.Print("Can't log in as '" + value + "'");
+                 _display.Print("Can't log in as '" + value + "'");
             }
         }
     }
