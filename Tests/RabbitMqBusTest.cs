@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using RabbitMQ.Client;
 using System;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,20 @@ namespace Chat
     [Timeout(2000)]
     public class RabbitMqBusTest
     {
+        private CompositeDisposable _instanceDisposer;
+
+        [TearDown]
+        public void Dispose()
+        {
+            _instanceDisposer.Dispose();
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            _instanceDisposer = new CompositeDisposable();
+        }
+
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
@@ -93,10 +108,10 @@ namespace Chat
             return connectionFactory.CreateConnection();
         }
 
-        private static ClientBus GetClientBus()
+        private ClientBus GetClientBus()
         {
             var messageSerializer = new JsonMessageSerializer();
-            var connectionClient = CreateConnection();
+            var connectionClient = CreateConnection().DisposeWith(_instanceDisposer);
             var messagingProvider = new MessagingProvider(config.ExchangeRequestName, connectionClient);
             messagingProvider.Initialize();
             var clientBus = new ClientBus(messageSerializer, messagingProvider, config.QueueRequestName);
@@ -104,10 +119,10 @@ namespace Chat
             return clientBus;
         }
 
-        private static ServerBus GetServerBus()
+        private ServerBus GetServerBus()
         {
             var messageSerializer = new JsonMessageSerializer();
-            var connectionServer = CreateConnection();
+            var connectionServer = CreateConnection().DisposeWith(_instanceDisposer);
             var messagingProvider = new MessagingProvider(config.ExchangeRequestName, connectionServer);
             messagingProvider.Initialize();
             var serverBus = new ServerBus(messageSerializer, messagingProvider, config.QueueRequestName);
