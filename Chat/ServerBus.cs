@@ -23,7 +23,17 @@ namespace Chat
             _messagingProvider.Receive(DeliveryHandler, _requestName);
         }
 
+        public void AddHandler<TRequest>(Action<TRequest> handler)
+        {
+            _AddHandler<TRequest>(handler);
+        }
+
         public void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler)
+        {
+            _AddHandler<TRequest>(handler);
+        }
+
+        private void _AddHandler<TRequest>(Delegate handler)
         {
             var requestType = typeof(TRequest);
             if (_requestsHandlers.ContainsKey(requestType)) throw new ArgumentException("Handler already registered.");

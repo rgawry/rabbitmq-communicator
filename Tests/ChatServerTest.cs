@@ -30,5 +30,20 @@ namespace Chat
             Assert.That(!chatServer.UsersInRooms[chatServer.DefaultRoomName].Contains(request.Token), Is.True);
             Assert.That(chatServer.UsersInRooms[request.RoomName].Contains(request.Token), Is.True);
         }
+
+        [Test]
+        public void ShouldNotJoinTwiceSameRoom()
+        {
+            var chatServer = new ChatServer(Substitute.For<IServerBus>(), Substitute.For<IDisplay>());
+            chatServer.Initialize();
+            var request = new JoinRoomRequest { RoomName = "testRoomName", Token = "login1" };
+
+            chatServer.SwitchRoomHandler(request);
+            chatServer.SwitchRoomHandler(request);
+
+            Assert.That(!chatServer.UsersInRooms[chatServer.DefaultRoomName].Contains(request.Token), Is.True);
+            Assert.That(chatServer.UsersInRooms[request.RoomName].Contains(request.Token), Is.True);
+            Assert.That(chatServer.UsersInRooms[request.RoomName].Count, Is.EqualTo(1));
+        }
     }
 }

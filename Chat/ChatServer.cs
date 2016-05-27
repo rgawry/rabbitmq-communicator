@@ -23,6 +23,7 @@ namespace Chat
         public void Initialize()
         {
             _usersInRooms.TryAdd(DefaultRoomName, new List<string>());
+            _serverBus.AddHandler<JoinRoomRequest>(SwitchRoomHandler);
             _serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(SessionHandler);
         }
 
@@ -48,7 +49,7 @@ namespace Chat
                 if (defaultRoomUsers.Contains(request.Token)) defaultRoomUsers.RemoveAt(defaultRoomUsers.IndexOf(request.Token));
             }
 
-            _usersInRooms.TryAdd(request.RoomName, new List<string>());
+            if (!_usersInRooms.TryAdd(request.RoomName, new List<string>())) return;
             _usersInRooms[request.RoomName].Add(request.Token);
         }
     }
