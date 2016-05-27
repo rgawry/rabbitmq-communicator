@@ -66,7 +66,7 @@ namespace Chat
         {
             if (string.IsNullOrWhiteSpace(value)) _display.Print("Wrong argument.");
 
-            var response = await _clientBus.Request(new OpenSessionRequest { UserName = value }).Response<OpenSessionResponse>();
+            var response = await _clientBus.Request<OpenSessionRequest,OpenSessionResponse>(new OpenSessionRequest { UserName = value });
 
             if (response.IsLogged)
             {

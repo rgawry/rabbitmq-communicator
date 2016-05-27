@@ -32,7 +32,7 @@ namespace Chat
         }
 
         [Test]
-        public void ShouldNotJoinTwiceSameRoom()
+        public void ShouldNotJoinSameRoomTwice()
         {
             var chatServer = new ChatServer(Substitute.For<IServerBus>(), Substitute.For<IDisplay>());
             chatServer.Initialize();

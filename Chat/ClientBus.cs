@@ -40,6 +40,21 @@ namespace Chat
             Task.Factory.StartNew(ScanForTimeout, _cancelationToken);
         }
 
+
+        public void Request<TRequest>(TRequest request)
+        {
+            var requestType = typeof(TRequest);
+            var requestMessageBody = _messageSerializer.Serialize(request);
+
+            var requestEnvelope = new Envelope
+            {
+                BodyType = requestType.FullName + ", " + requestType.Assembly.FullName,
+                SendTo = _requestName,
+                Body = requestMessageBody
+            };
+            _messagingProvider.Send(requestEnvelope);
+        }
+
         public Task<TResponse> Request<TRequest, TResponse>(TRequest request)
         {
             var requestType = typeof(TRequest);

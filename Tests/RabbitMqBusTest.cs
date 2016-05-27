@@ -37,7 +37,7 @@ namespace Chat
             {
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
 
-                var response = await clientBus.Request(new TestMessageA { Name = "login1" }).Response<TestMessageC>();
+                var response = await clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
 
                 Assert.That(response.Done, Is.True);
             }
@@ -55,8 +55,8 @@ namespace Chat
                     return new TestMessageC { Done = req.Name == "login1" ? true : false };
                 });
 
-                var response1AsTask = clientBus.Request(new TestMessageA { Name = "login1" }).Response<TestMessageC>();
-                var response2AsTask = clientBus.Request(new TestMessageA { Name = "login2" }).Response<TestMessageC>();
+                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
+                var response2AsTask = clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login2" });
 
                 await Task.WhenAll(response1AsTask, response2AsTask);
 
@@ -74,8 +74,8 @@ namespace Chat
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
                 serverBus.AddHandler<TestMessageB, TestMessageC>(req => new TestMessageC { Done = false });
 
-                var response1AsTask = clientBus.Request(new TestMessageA { Name = "login1" }).Response<TestMessageC>();
-                var response2AsTask = clientBus.Request(new TestMessageB { Name = "login2" }).Response<TestMessageC>();
+                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
+                var response2AsTask = clientBus.Request<TestMessageB, TestMessageC>(new TestMessageB { Name = "login2" });
 
                 await Task.WhenAll(response1AsTask, response2AsTask);
 
@@ -93,7 +93,7 @@ namespace Chat
                 {
                     clientBus.TimeoutValue = 0.1f;
                     var request = new TestMessageA { Name = "login1" };
-                    await clientBus.Request(new TestMessageA { Name = "login1" }).Response<TestMessageC>();
+                    await clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
                 };
             };
             Assert.That(testDelegate, Throws.TypeOf<TimeoutException>());

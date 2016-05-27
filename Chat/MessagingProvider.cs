@@ -59,7 +59,7 @@ namespace Chat
         {
             var properties = _channelProduce.CreateBasicProperties();
             if (envelope.ReplyTo != null) properties.ReplyTo = envelope.ReplyTo;
-            properties.CorrelationId = envelope.CorrelationId;
+            if (envelope.CorrelationId != null) properties.CorrelationId = envelope.CorrelationId;
             properties.Type = envelope.BodyType.ToString();
             _channelProduce.BasicPublish(_exchangeName, envelope.SendTo, properties, envelope.Body);
         }
