@@ -51,6 +51,7 @@ namespace Chat
 
             if (!_usersInRooms.TryAdd(request.RoomName, new List<string>())) return;
             _usersInRooms[request.RoomName].Add(request.Token);
+            _display.Print("user '" + request.Token + "' switched from default room to " + request.RoomName);
         }
     }
 }

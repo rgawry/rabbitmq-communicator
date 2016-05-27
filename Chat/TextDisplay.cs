@@ -1,6 +1,7 @@
 ﻿using Castle.Core;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Chat
 {
@@ -21,14 +22,17 @@ namespace Chat
             ReadLine();
         }
 
-        private async void ReadLine()
+        private void ReadLine()
         {
-            while (true)
+            Task.Run(async () =>
             {
-                var line = await _input.ReadLineAsync();
-                var handler = OneLine;
-                if (handler != null) handler(this, new TextInputEventArgs(line));
-            }
+                while (true)
+                {
+                    var line = await _input.ReadLineAsync();
+                    var handler = OneLine;
+                    if (handler != null) handler(this, new TextInputEventArgs(line));
+                };
+            });
         }
 
         public void Print(string text)

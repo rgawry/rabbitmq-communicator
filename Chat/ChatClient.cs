@@ -8,6 +8,7 @@ namespace Chat
     public sealed class ChatClient : IInitializable
     {
         private const string LOGIN_COMMAND = "login";
+        private const string SWITCH_ROOM_COMMAND = "switch";
 
         private List<string> _commands = new List<string>();
         private IClientBus _clientBus;
@@ -24,6 +25,7 @@ namespace Chat
         public void Initialize()
         {
             _commands.Add(LOGIN_COMMAND);
+            _commands.Add(SWITCH_ROOM_COMMAND);
             _display.OneLine += new EventHandler<TextInputEventArgs>(async (s, ea) => await OnOneLine(s, ea));
             PrintWelcome();
         }
@@ -41,9 +43,34 @@ namespace Chat
                 case LOGIN_COMMAND:
                     await LoginHandler(argument);
                     break;
+                case SWITCH_ROOM_COMMAND:
+                    SwitchRoomHandler(argument);
+                    break;
                 default:
                     _display.Print("Unknown command: " + command);
                     break;
+            }
+        }
+
+        private void SwitchRoomHandler(string argument)
+        {
+            if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
+            _clientBus.Request(new JoinRoomRequest { RoomName = argument, Token = "" });
+        }
+
+        private async Task LoginHandler(string argument)
+        {
+            if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
+
+            var response = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(new OpenSessionRequest { UserName = argument });
+
+            if (response.IsLogged)
+            {
+                _display.Print("Logged in as '" + argument + "'");
+            }
+            else
+            {
+                _display.Print("Can't log in as '" + argument + "'");
             }
         }
 
@@ -59,22 +86,6 @@ namespace Chat
             foreach (var command in _commands)
             {
                 _display.Print(" " + command);
-            }
-        }
-
-        private async Task LoginHandler(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value)) _display.Print("Wrong argument.");
-
-            var response = await _clientBus.Request<OpenSessionRequest,OpenSessionResponse>(new OpenSessionRequest { UserName = value });
-
-            if (response.IsLogged)
-            {
-                _display.Print("Logged in as '" + value + "'");
-            }
-            else
-            {
-                _display.Print("Can't log in as '" + value + "'");
             }
         }
     }
