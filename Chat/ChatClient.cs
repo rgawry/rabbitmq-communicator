@@ -13,7 +13,6 @@ namespace Chat
         private IClientBus _clientBus;
         private IDisplay _display;
         private ICommandProcessor _commandProcessor;
-        private bool _isLogged;
 
         public ChatClient(IClientBus clientBus, IDisplay display, ICommandProcessor commandProcessor)
         {
@@ -26,7 +25,7 @@ namespace Chat
         {
             _commands.Add(LOGIN_COMMAND);
             _display.OneLine += new EventHandler<TextInputEventArgs>(async (s, ea) => await OnOneLine(s, ea));
-            PrintWelcome().Wait();
+            PrintWelcome();
         }
 
         private async Task OnOneLine(object sender, TextInputEventArgs ea)
@@ -48,14 +47,14 @@ namespace Chat
             }
         }
 
-        private async Task PrintWelcome()
+        private void PrintWelcome()
         {
             _display.Print("Welcome to chat.");
             _display.Print("List of available commands:");
-            await PrintCommands();
+            PrintCommands();
         }
 
-        private async Task PrintCommands()
+        private void PrintCommands()
         {
             foreach (var command in _commands)
             {
@@ -65,24 +64,17 @@ namespace Chat
 
         private async Task LoginHandler(string value)
         {
-            if (_isLogged)
-            {
-                _display.Print("You arleady logged in.");
-                return;
-            }
-
             if (string.IsNullOrWhiteSpace(value)) _display.Print("Wrong argument.");
 
             var response = await _clientBus.Request(new OpenSessionRequest { UserName = value }).Response<OpenSessionResponse>();
 
             if (response.IsLogged)
             {
-                _isLogged = true;
                 _display.Print("Logged in as '" + value + "'");
             }
             else
             {
-                 _display.Print("Can't log in as '" + value + "'");
+                _display.Print("Can't log in as '" + value + "'");
             }
         }
     }
