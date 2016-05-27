@@ -8,19 +8,18 @@ namespace Chat
     public interface IServerBus
     {
         /// <summary>
-        /// Registers new request listener. You can register only one listener for given type of request.
+        /// Registers new request listener.
         /// </summary>
         /// <typeparam name="TRequest"></typeparam>
         /// <param name="handler"></param>
         void AddHandler<TRequest>(Action<TRequest> handler);
 
         /// <summary>
-        /// Registers new request listener. You can register only one listener for given type of request.
+        /// Registers new request listener.
         /// </summary>
         /// <typeparam name="TRequest"></typeparam>
         /// <typeparam name="TResponse"></typeparam>
         /// <param name="handler">Handler that will be invoked when received message.</param>
-        /// <exception cref="ArgumentException">Throws when handler is already registered.</exception>
         void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler);
     }
 }

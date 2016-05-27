@@ -12,7 +12,7 @@ namespace Chat
     public class TestMessageC { public bool Done { get; set; } }
 
     [TestFixture]
-    [Timeout(2000)]
+    //[Timeout(2000)]
     public class RabbitMqBusTest
     {
         private CompositeDisposable _instanceDisposer;
@@ -35,6 +35,7 @@ namespace Chat
             var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
             {
+                clientBus.TimeoutValue = 999f;
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
 
                 var response = await clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
