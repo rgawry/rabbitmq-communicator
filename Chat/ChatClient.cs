@@ -14,6 +14,7 @@ namespace Chat
         private IClientBus _clientBus;
         private IDisplay _display;
         private ICommandProcessor _commandProcessor;
+        private string _userName;
 
         public ChatClient(IClientBus clientBus, IDisplay display, ICommandProcessor commandProcessor)
         {
@@ -55,7 +56,7 @@ namespace Chat
         private void SwitchRoomHandler(string argument)
         {
             if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
-            _clientBus.Request(new JoinRoomRequest { RoomName = argument, Token = "" });
+            _clientBus.Request(new JoinRoomRequest { RoomName = argument, Token = _userName });
         }
 
         private async Task LoginHandler(string argument)
@@ -67,6 +68,7 @@ namespace Chat
             if (response.IsLogged)
             {
                 _display.Print("Logged in as '" + argument + "'");
+                _userName = argument;
             }
             else
             {

@@ -12,7 +12,7 @@ namespace Chat
     public class TestMessageC { public bool Done { get; set; } }
 
     [TestFixture]
-    //[Timeout(2000)]
+    [Timeout(2000)]
     public class RabbitMqBusTest
     {
         private CompositeDisposable _instanceDisposer;
