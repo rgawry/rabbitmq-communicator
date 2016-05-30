@@ -80,8 +80,8 @@
   <ItemGroup>
     <Compile Include="CommandProcessorTest.cs" />
     <Compile Include="RabbitMqBusTest.cs" />
-    <Compile Include="ChatServerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SessionHandlerTest.cs" />
     <Compile Include="TextDisplayTest.cs" />
   </ItemGroup>
   <ItemGroup>

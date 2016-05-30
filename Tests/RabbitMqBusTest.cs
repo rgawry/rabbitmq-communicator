@@ -35,7 +35,6 @@ namespace Chat
             var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
             {
-                clientBus.TimeoutValue = 999f;
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
 
                 var response = await clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
@@ -117,6 +116,7 @@ namespace Chat
             messagingProvider.Initialize();
             var clientBus = new ClientBus(messageSerializer, messagingProvider, config.QueueRequestName);
             clientBus.Initialize();
+
             return clientBus;
         }
 

@@ -78,6 +78,8 @@
   <ItemGroup>
     <Compile Include="ChatClient.cs" />
     <Compile Include="ChatServer.cs" />
+    <Compile Include="Interfaces\ISessionHandler.cs" />
+    <Compile Include="SessionHandler.cs" />
     <Compile Include="TextInputEventArgs.cs" />
     <Compile Include="ClientBusExtensions.cs" />
     <Compile Include="CommandProcessor.cs" />
@@ -97,12 +99,15 @@
     <Compile Include="MessagingProvider.cs" />
     <Compile Include="ClientBus.cs" />
     <Compile Include="Interfaces\IClientBus.cs" />
-    <Compile Include="OpenSessionRequest.cs" />
-    <Compile Include="OpenSessionResponse.cs" />
+    <Compile Include="Messages\OpenSessionRequest.cs" />
+    <Compile Include="Messages\OpenSessionResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerBus.cs" />
-    <Compile Include="JoinRoomRequest.cs" />
+    <Compile Include="Messages\JoinRoomRequest.cs" />
     <Compile Include="MessagingProviderFactory.cs" />
+    <Compile Include="Messages\TokenRequest.cs" />
+    <Compile Include="Messages\TokenResponse.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -9,6 +9,8 @@ namespace Chat
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
+                Component.For<ISessionHandler>()
+                    .ImplementedBy<SessionHandler>(),
                 Component.For<IServerBus>()
                     .ImplementedBy<ServerBus>()
                         .DependsOn(Dependency.OnAppSettingsValue("requestName", "queue-request-name")),
