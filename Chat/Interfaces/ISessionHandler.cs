@@ -4,5 +4,6 @@
     {
         OpenSessionResponse Login(OpenSessionRequest request);
         void JoinRoom(JoinRoomRequest request);
+        TokenResponse NewToken(TokenRequest request);
     }
 }

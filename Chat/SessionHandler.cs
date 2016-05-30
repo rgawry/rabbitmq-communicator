@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Chat
 {
@@ -27,6 +28,11 @@ namespace Chat
             var userIndex = IndexOf(new User { Token = request.Token });
             if (userIndex == -1) return;
             _users[userIndex].Room = request.RoomName;
+        }
+
+        public TokenResponse NewToken(TokenRequest request)
+        {
+            return new TokenResponse { Token = Guid.NewGuid().ToString() };
         }
 
         public string GetUserRoom(string token)

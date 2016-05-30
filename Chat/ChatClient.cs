@@ -14,7 +14,7 @@ namespace Chat
         private IClientBus _clientBus;
         private IDisplay _display;
         private ICommandProcessor _commandProcessor;
-        private string _userName;
+        private string _token;
 
         public ChatClient(IClientBus clientBus, IDisplay display, ICommandProcessor commandProcessor)
         {
@@ -25,6 +25,9 @@ namespace Chat
 
         public void Initialize()
         {
+            var tokenTask = _clientBus.Request<TokenRequest, TokenResponse>(new TokenRequest());
+            Task.WaitAny(tokenTask);
+            _token = tokenTask.Result.Token;
             _commands.Add(LOGIN_COMMAND);
             _commands.Add(SWITCH_ROOM_COMMAND);
             _display.OneLine += new EventHandler<TextInputEventArgs>(async (s, ea) => await OnOneLine(s, ea));
@@ -53,12 +56,6 @@ namespace Chat
             }
         }
 
-        private void SwitchRoomHandler(string argument)
-        {
-            if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
-            _clientBus.Request(new JoinRoomRequest { RoomName = argument, Token = _userName });
-        }
-
         private async Task LoginHandler(string argument)
         {
             if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
@@ -68,12 +65,17 @@ namespace Chat
             if (response.IsLogged)
             {
                 _display.Print("Logged in as '" + argument + "'");
-                _userName = argument;
             }
             else
             {
                 _display.Print("Can't log in as '" + argument + "'");
             }
+        }
+
+        private void SwitchRoomHandler(string argument)
+        {
+            if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
+            _clientBus.Request(new JoinRoomRequest { RoomName = argument, Token = _token });
         }
 
         private void PrintWelcome()

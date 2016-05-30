@@ -78,5 +78,16 @@ namespace Chat
             sh.JoinRoom(request2);
             Assert.That(sh.GetUserRoom(token), Is.EqualTo(roomName2));
         }
+
+        [Test]
+        public void NewToken_GetNewToken()
+        {
+            var request = new TokenRequest();
+            var sh = new SessionHandler();
+
+            var response = sh.NewToken(request);
+
+            Assert.That(!string.IsNullOrWhiteSpace(response.Token), Is.True);
+        }
     }
 }

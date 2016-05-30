@@ -15,6 +15,7 @@ namespace Chat
 
         public void Initialize()
         {
+            _serverBus.AddHandler<TokenRequest, TokenResponse>(_sessionHandler.NewToken);
             _serverBus.AddHandler<JoinRoomRequest>(_sessionHandler.JoinRoom);
             _serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(_sessionHandler.Login);
         }
