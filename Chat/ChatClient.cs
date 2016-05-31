@@ -14,7 +14,7 @@ namespace Chat
         private IClientBus _clientBus;
         private IDisplay _display;
         private ICommandProcessor _commandProcessor;
-        private string _token;
+        private Task<string> _tokenTask;
 
         public ChatClient(IClientBus clientBus, IDisplay display, ICommandProcessor commandProcessor)
         {
@@ -25,9 +25,7 @@ namespace Chat
 
         public void Initialize()
         {
-            var tokenTask = _clientBus.Request<TokenRequest, TokenResponse>(new TokenRequest());
-            Task.WaitAny(tokenTask);
-            _token = tokenTask.Result.Token;
+            _tokenTask = _clientBus.Request<TokenRequest, TokenResponse>(new TokenRequest()).ContinueWith(it => it.Result.Token);
             _commands.Add(LOGIN_COMMAND);
             _commands.Add(SWITCH_ROOM_COMMAND);
             _display.OneLine += new EventHandler<TextInputEventArgs>(async (s, ea) => await OnOneLine(s, ea));
@@ -72,10 +70,10 @@ namespace Chat
             }
         }
 
-        private void SwitchRoomHandler(string argument)
+        private async void SwitchRoomHandler(string argument)
         {
             if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
-            _clientBus.Request(new JoinRoomRequest { RoomName = argument, Token = _token });
+            _clientBus.Request(new JoinRoomRequest { RoomName = argument, Token = await _tokenTask });
         }
 
         private void PrintWelcome()
