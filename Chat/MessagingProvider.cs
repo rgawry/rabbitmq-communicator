@@ -9,7 +9,7 @@ namespace Chat
 {
     public sealed class MessagingProvider : IMessagingProvider, IInitializable, IDisposable
     {
-        private CompositeDisposable _thisDisposer = new CompositeDisposable();
+        private CompositeDisposable _instanceDisposer = new CompositeDisposable();
         private readonly string _exchangeName;
         private IConnection _connection;
         private IModel _channelConsume;
@@ -25,8 +25,8 @@ namespace Chat
 
         public void Initialize()
         {
-            _channelConsume = _connection.CreateModel().DisposeWith(_thisDisposer);
-            _channelProduce = _connection.CreateModel().DisposeWith(_thisDisposer);
+            _channelConsume = _connection.CreateModel().DisposeWith(_instanceDisposer);
+            _channelProduce = _connection.CreateModel().DisposeWith(_instanceDisposer);
         }
 
         public void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler, string requestName)
@@ -51,7 +51,7 @@ namespace Chat
             };
             _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _consumerReceivedHandler;
-            Disposable.Create(() => _consumer.Received -= _consumerReceivedHandler).DisposeWith(_thisDisposer);
+            Disposable.Create(() => _consumer.Received -= _consumerReceivedHandler).DisposeWith(_instanceDisposer);
             _channelConsume.BasicConsume(requestName, true, _consumer);
         }
 
@@ -66,7 +66,7 @@ namespace Chat
 
         public void Dispose()
         {
-            _thisDisposer.Dispose();
+            _instanceDisposer.Dispose();
         }
     }
 }
