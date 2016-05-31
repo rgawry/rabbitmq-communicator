@@ -92,7 +92,6 @@ namespace Chat
                 using (var clientBus = GetClientBus())
                 {
                     clientBus.TimeoutValue = 0.1f;
-                    var request = new TestMessageA { Name = "login1" };
                     await clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
                 };
             };
