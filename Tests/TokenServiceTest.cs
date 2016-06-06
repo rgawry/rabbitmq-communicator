@@ -11,7 +11,7 @@ namespace Chat
             var request = new TokenRequest();
             var tokenService = new TokenService();
 
-            var response = tokenService.GetToken(request);
+            var response = tokenService.Handle(request);
 
             Assert.That(!string.IsNullOrWhiteSpace(response.Token), Is.True);
         }

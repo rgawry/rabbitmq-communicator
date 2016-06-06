@@ -14,7 +14,7 @@ namespace Chat
         }
 
         [Test]
-        public void IsUserLoggedIn_WhenGivenTokenNotRegistered_ShouldReturnFalse()
+        public void IsUserLoggedIn_TokenNotRegistered_ShouldReturnFalse()
         {
             var result = _roomService.IsUserLoggedIn("test_token");
 
@@ -22,7 +22,7 @@ namespace Chat
         }
 
         [Test]
-        public void IsUserLoggedIn_WhenGivenTokenRegistered_ShouldReturnTrue()
+        public void IsUserLoggedIn_TokenRegistered_ShouldReturnTrue()
         {
             var testToken = "test_token";
             _roomService._users.Add(new User { Token = testToken });
@@ -32,7 +32,7 @@ namespace Chat
         }
 
         [Test]
-        public void IsUserNameTaken_WhenGivenUserNameNotRegistered_ShouldReturnFalse()
+        public void IsUserNameTaken_UserNameNotRegistered_ShouldReturnFalse()
         {
             var result = _roomService.IsUserNameTaken("userName");
 
@@ -40,7 +40,7 @@ namespace Chat
         }
 
         [Test]
-        public void IsUserNameTaken_WhenGivenUserNameRegistered_ShouldReturnTrue()
+        public void IsUserNameTaken_UserNameRegistered_ShouldReturnTrue()
         {
             var testUserName = "userName";
             _roomService._users.Add(new User { Name = testUserName });

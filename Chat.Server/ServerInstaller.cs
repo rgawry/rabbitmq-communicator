@@ -15,7 +15,7 @@ namespace Chat
                     .ImplementedBy<SessionService>(),
                 Component.For<IJoinRoomService>()
                     .ImplementedBy<JoinRoomService>(),
-                Component.For<ITokenService>()
+                Component.For<IService<TokenRequest, TokenResponse>>()
                     .ImplementedBy<TokenService>(),
                 Component.For<IServerBus>()
                     .ImplementedBy<ServerBus>()

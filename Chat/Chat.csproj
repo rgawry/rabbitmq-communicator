@@ -81,7 +81,7 @@
     <Compile Include="Interfaces\IJoinRoomService.cs" />
     <Compile Include="Interfaces\IRoomService.cs" />
     <Compile Include="Interfaces\ISessionService.cs" />
-    <Compile Include="Interfaces\ITokenService.cs" />
+    <Compile Include="Interfaces\IService.cs" />
     <Compile Include="JoinRoomService.cs" />
     <Compile Include="RoomService.cs" />
     <Compile Include="SessionService.cs" />

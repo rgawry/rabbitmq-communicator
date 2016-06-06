@@ -7,9 +7,9 @@ namespace Chat
         private IServerBus _serverBus;
         private ISessionService _sessionService;
         private IJoinRoomService _joinRoomService;
-        private ITokenService _tokenService;
+        private IService<TokenRequest, TokenResponse> _tokenService;
 
-        public ChatServer(IServerBus serverBus, ISessionService sessionService, IJoinRoomService joinRoomService, ITokenService tokenService)
+        public ChatServer(IServerBus serverBus, ISessionService sessionService, IJoinRoomService joinRoomService, IService<TokenRequest, TokenResponse> tokenService)
         {
             _serverBus = serverBus;
             _sessionService = sessionService;
@@ -19,7 +19,7 @@ namespace Chat
 
         public void Initialize()
         {
-            _serverBus.AddHandler<TokenRequest, TokenResponse>(_tokenService.GetToken);
+            _serverBus.AddHandler<TokenRequest, TokenResponse>(_tokenService.Handle);
             _serverBus.AddHandler<JoinRoomRequest>(_joinRoomService.JoinRoom);
             _serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(_sessionService.Login);
         }
