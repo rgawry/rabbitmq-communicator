@@ -5,7 +5,7 @@ namespace Chat
     public class RoomService : IRoomService
     {
         private string _defaultRoomName = "default";
-        private SynchronizedCollection<User> _users = new SynchronizedCollection<User>();
+        internal SynchronizedCollection<User> _users = new SynchronizedCollection<User>();
 
         public void AddUser(User user)
         {

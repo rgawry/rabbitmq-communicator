@@ -9,9 +9,9 @@ namespace Chat
         public void GetToken_ShouldReturnNewToken()
         {
             var request = new TokenRequest();
-            var ts = new TokenService();
+            var tokenService = new TokenService();
 
-            var response = ts.GetToken(request);
+            var response = tokenService.GetToken(request);
 
             Assert.That(!string.IsNullOrWhiteSpace(response.Token), Is.True);
         }
