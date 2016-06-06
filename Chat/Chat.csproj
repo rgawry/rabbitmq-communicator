@@ -78,8 +78,13 @@
   <ItemGroup>
     <Compile Include="ChatClient.cs" />
     <Compile Include="ChatServer.cs" />
-    <Compile Include="Interfaces\ISessionHandler.cs" />
-    <Compile Include="SessionHandler.cs" />
+    <Compile Include="Interfaces\IJoinRoomService.cs" />
+    <Compile Include="Interfaces\IRoomService.cs" />
+    <Compile Include="Interfaces\ISessionService.cs" />
+    <Compile Include="Interfaces\ITokenService.cs" />
+    <Compile Include="JoinRoomService.cs" />
+    <Compile Include="RoomService.cs" />
+    <Compile Include="SessionService.cs" />
     <Compile Include="TextInputEventArgs.cs" />
     <Compile Include="ClientBusExtensions.cs" />
     <Compile Include="CommandProcessor.cs" />
@@ -107,6 +112,7 @@
     <Compile Include="MessagingProviderFactory.cs" />
     <Compile Include="Messages\TokenRequest.cs" />
     <Compile Include="Messages\TokenResponse.cs" />
+    <Compile Include="TokenService.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
