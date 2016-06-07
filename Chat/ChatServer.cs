@@ -5,11 +5,11 @@ namespace Chat
     public sealed class ChatServer : IInitializable
     {
         private IServerBus _serverBus;
-        private ISessionService _sessionService;
-        private IJoinRoomService _joinRoomService;
-        private IService<TokenRequest, TokenResponse> _tokenService;
+        private IRequestResponseService<OpenSessionRequest, OpenSessionResponse> _sessionService;
+        private IRequestService<JoinRoomRequest> _joinRoomService;
+        private IRequestResponseService<TokenRequest, TokenResponse> _tokenService;
 
-        public ChatServer(IServerBus serverBus, ISessionService sessionService, IJoinRoomService joinRoomService, IService<TokenRequest, TokenResponse> tokenService)
+        public ChatServer(IServerBus serverBus, IRequestResponseService<OpenSessionRequest, OpenSessionResponse> sessionService, IRequestService<JoinRoomRequest> joinRoomService, IRequestResponseService<TokenRequest, TokenResponse> tokenService)
         {
             _serverBus = serverBus;
             _sessionService = sessionService;
@@ -20,8 +20,8 @@ namespace Chat
         public void Initialize()
         {
             _serverBus.AddHandler<TokenRequest, TokenResponse>(_tokenService.Handle);
-            _serverBus.AddHandler<JoinRoomRequest>(_joinRoomService.JoinRoom);
-            _serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(_sessionService.Login);
+            _serverBus.AddHandler<JoinRoomRequest>(_joinRoomService.Handle);
+            _serverBus.AddHandler<OpenSessionRequest, OpenSessionResponse>(_sessionService.Handle);
         }
     }
 }

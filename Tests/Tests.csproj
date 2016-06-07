@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="CommandProcessorTest.cs" />
     <Compile Include="JoinRoomServiceTest.cs" />
+    <Compile Include="JsonSerializerTest.cs" />
     <Compile Include="RabbitMqBusTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoomServiceTest.cs" />

@@ -78,10 +78,9 @@
   <ItemGroup>
     <Compile Include="ChatClient.cs" />
     <Compile Include="ChatServer.cs" />
-    <Compile Include="Interfaces\IJoinRoomService.cs" />
+    <Compile Include="Interfaces\IRequestService.cs" />
     <Compile Include="Interfaces\IRoomService.cs" />
-    <Compile Include="Interfaces\ISessionService.cs" />
-    <Compile Include="Interfaces\IService.cs" />
+    <Compile Include="Interfaces\IRequestResponseService.cs" />
     <Compile Include="JoinRoomService.cs" />
     <Compile Include="RoomService.cs" />
     <Compile Include="SessionService.cs" />

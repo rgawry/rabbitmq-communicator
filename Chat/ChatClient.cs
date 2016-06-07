@@ -58,7 +58,7 @@ namespace Chat
         {
             if (string.IsNullOrWhiteSpace(argument)) _display.Print("Wrong argument.");
 
-            var response = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(new OpenSessionRequest { UserName = argument });
+            var response = await _clientBus.Request<OpenSessionRequest, OpenSessionResponse>(new OpenSessionRequest { UserName = argument, Token = await _tokenTask });
 
             if (response.IsLogged)
             {

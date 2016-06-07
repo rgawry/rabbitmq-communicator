@@ -11,11 +11,11 @@ namespace Chat
             container.Register(
                 Component.For<IRoomService>()
                     .ImplementedBy<RoomService>(),
-                Component.For<ISessionService>()
+                Component.For<IRequestResponseService<OpenSessionRequest, OpenSessionResponse>>()
                     .ImplementedBy<SessionService>(),
-                Component.For<IJoinRoomService>()
+                Component.For<IRequestService<JoinRoomRequest>>()
                     .ImplementedBy<JoinRoomService>(),
-                Component.For<IService<TokenRequest, TokenResponse>>()
+                Component.For<IRequestResponseService<TokenRequest, TokenResponse>>()
                     .ImplementedBy<TokenService>(),
                 Component.For<IServerBus>()
                     .ImplementedBy<ServerBus>()

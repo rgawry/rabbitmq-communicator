@@ -2,7 +2,7 @@
 
 namespace Chat
 {
-    public class TokenService : IService<TokenRequest, TokenResponse>
+    public class TokenService : IRequestResponseService<TokenRequest, TokenResponse>
     {
         public TokenResponse Handle(TokenRequest request)
         {

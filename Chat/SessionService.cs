@@ -1,6 +1,6 @@
 ﻿namespace Chat
 {
-    public class SessionService : ISessionService
+    public class SessionService : IRequestResponseService<OpenSessionRequest, OpenSessionResponse>
     {
         private IRoomService _roomService;
 
@@ -9,7 +9,7 @@
             _roomService = roomService;
         }
 
-        public OpenSessionResponse Login(OpenSessionRequest request)
+        public OpenSessionResponse Handle(OpenSessionRequest request)
         {
             var result = new OpenSessionResponse();
             var user = new User { Name = request.UserName, Token = request.Token, Room = _roomService.GetDefaultRoomName() };

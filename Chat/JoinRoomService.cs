@@ -1,6 +1,6 @@
 ﻿namespace Chat
 {
-    public class JoinRoomService : IJoinRoomService
+    public class JoinRoomService : IRequestService<JoinRoomRequest>
     {
         private IRoomService _roomService;
 
@@ -9,7 +9,7 @@
             _roomService = roomService;
         }
 
-        public void JoinRoom(JoinRoomRequest request)
+        public void Handle(JoinRoomRequest request)
         {
             if (_roomService.IsUserLoggedIn(request.Token)) _roomService.SetUserRoom(request.Token, request.RoomName);
         }

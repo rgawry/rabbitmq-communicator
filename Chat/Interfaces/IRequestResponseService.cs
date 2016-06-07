@@ -1,6 +1,6 @@
 ﻿namespace Chat
 {
-    public interface IService<TRequest, TResponse>
+    public interface IRequestResponseService<TRequest, TResponse>
     {
         TResponse Handle(TRequest request);
     }
