@@ -9,7 +9,7 @@ namespace Chat
 {
     public sealed class ClientBus : IClientBus, IDisposable, IInitializable
     {
-        private const float DEFAULT_TIMEOUT_VALUE = 534343;
+        private const float DEFAULT_TIMEOUT_VALUE = 5;
 
         private CompositeDisposable _thisDisposer = new CompositeDisposable();
         private string _requestName;

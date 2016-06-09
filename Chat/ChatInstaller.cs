@@ -24,7 +24,13 @@ namespace Chat
                     .ImplementedBy<TextDisplay>()
                         .DependsOn(Dependency.OnValue("input", Console.In))
                         .DependsOn(Dependency.OnValue("output", Console.Out))
-                            .LifeStyle.Transient);
+                            .LifeStyle.Transient,
+                Types.FromThisAssembly()
+                    .BasedOn(typeof(IRequestResponseService<,>))
+                        .WithService.Base(),
+                Types.FromThisAssembly()
+                    .BasedOn(typeof(IRequestService<>))
+                        .WithService.Base());
         }
     }
 }

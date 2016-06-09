@@ -11,16 +11,11 @@ namespace Chat
             container.Register(
                 Component.For<IRoomService>()
                     .ImplementedBy<RoomService>(),
-                Component.For<IRequestResponseService<OpenSessionRequest, OpenSessionResponse>>()
-                    .ImplementedBy<SessionService>(),
-                Component.For<IRequestService<JoinRoomRequest>>()
-                    .ImplementedBy<JoinRoomService>(),
-                Component.For<IRequestResponseService<TokenRequest, TokenResponse>>()
-                    .ImplementedBy<TokenService>(),
                 Component.For<IServerBus>()
                     .ImplementedBy<ServerBus>()
-                        .DependsOn(Dependency.OnAppSettingsValue("requestName", "queue-request-name")),
-                Component.For<ChatServer>());
+                        .DependsOn(Dependency.OnAppSettingsValue("requestName", "queue-request-name"))
+                            .OnCreate(sb => sb.RegisterHandlers(container))
+            );
         }
     }
 }

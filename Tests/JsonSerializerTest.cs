@@ -7,7 +7,7 @@ namespace Chat
     class JsonSerializerTest
     {
         [Test]
-        public void SerializeDeserializeGuid2()
+        public void SerializeDeserializeGuid()
         {
             var toSerialize = new OpenSessionRequest { Token = Guid.NewGuid().ToString(), UserName = "testName" };
             var jsonSerializer = new JsonMessageSerializer();
