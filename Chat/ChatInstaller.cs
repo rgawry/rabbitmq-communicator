@@ -25,10 +25,10 @@ namespace Chat
                         .DependsOn(Dependency.OnValue("input", Console.In))
                         .DependsOn(Dependency.OnValue("output", Console.Out))
                             .LifeStyle.Transient,
-                Types.FromThisAssembly()
+                Classes.FromThisAssembly()
                     .BasedOn(typeof(IRequestResponseService<,>))
                         .WithService.Base(),
-                Types.FromThisAssembly()
+                Classes.FromThisAssembly()
                     .BasedOn(typeof(IRequestService<>))
                         .WithService.Base());
         }

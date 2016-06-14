@@ -80,6 +80,7 @@
     <Compile Include="Interfaces\IRequestService.cs" />
     <Compile Include="Interfaces\IRoomService.cs" />
     <Compile Include="Interfaces\IRequestResponseService.cs" />
+    <Compile Include="Interfaces\IServiceTag.cs" />
     <Compile Include="JoinRoomService.cs" />
     <Compile Include="RoomService.cs" />
     <Compile Include="IServerBusExtensions.cs" />
