@@ -44,10 +44,9 @@ namespace Chat
             var instance = container.Resolve(service.GetInterfaces().FirstOrDefault());
             var genericTypes = service.GetInterfaces().FirstOrDefault().GetGenericArguments();
             var serverBusType = serverBus.GetType();
-            var method = serverBusType.GetMethods().Where(mi => mi.Name == "AddHandler" && mi.GetGenericArguments().Length == genericArgsCount).FirstOrDefault();
-            var gm = method.MakeGenericMethod(genericTypes);
-            var deleg = Delegate.CreateDelegate(gm.GetParameters().FirstOrDefault().ParameterType, instance, "Handle");
-            gm.Invoke(serverBus, new object[] { deleg });
+            var method = serverBusType.GetMethods().Where(mi => mi.Name == "AddHandler" && mi.GetGenericArguments().Length == genericArgsCount).FirstOrDefault().MakeGenericMethod(genericTypes);
+            var @delegate = Delegate.CreateDelegate(method.GetParameters().FirstOrDefault().ParameterType, instance, "Handle");
+            method.Invoke(serverBus, new object[] { @delegate });
         }
     }
 }
