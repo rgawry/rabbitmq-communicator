@@ -14,7 +14,7 @@ namespace Chat
                 Component.For<IServerBus>()
                     .ImplementedBy<ServerBus>()
                         .DependsOn(Dependency.OnAppSettingsValue("requestName", "queue-request-name"))
-                            .OnCreate(sb => sb.RegisterHandlers(container))
+                            .OnCreate(sb => ((ServerBus)sb).RegisterHandlers(container))
             );
         }
     }

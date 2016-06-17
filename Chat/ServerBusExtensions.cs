@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Chat
 {
-    public static class IServerBusExtensions
+    public static class ServerBusExtensions
     {
-        public static void RegisterHandlers(this IServerBus serverBus, IWindsorContainer container)
+        public static void RegisterHandlers(this ServerBus serverBus, IWindsorContainer container)
         {
             var requestGenericArgsCount = 1;
             var requestResponseGenericArgsCount = 2;
@@ -41,8 +41,9 @@ namespace Chat
 
         internal static void RegisterHandler(IServerBus serverBus, IWindsorContainer container, Type service, int genericArgsCount)
         {
-            var instance = container.Resolve(service.GetInterfaces().FirstOrDefault());
-            var genericTypes = service.GetInterfaces().FirstOrDefault().GetGenericArguments();
+            var serviceInterface = service.GetInterfaces().FirstOrDefault();
+            var instance = container.Resolve(serviceInterface);
+            var genericTypes = serviceInterface.GetGenericArguments();
             var serverBusType = serverBus.GetType();
             var method = serverBusType.GetMethods().Where(mi => mi.Name == "AddHandler" && mi.GetGenericArguments().Length == genericArgsCount).FirstOrDefault().MakeGenericMethod(genericTypes);
             var @delegate = Delegate.CreateDelegate(method.GetParameters().FirstOrDefault().ParameterType, instance, "Handle");

@@ -83,7 +83,7 @@
     <Compile Include="Interfaces\IServiceTag.cs" />
     <Compile Include="JoinRoomService.cs" />
     <Compile Include="RoomService.cs" />
-    <Compile Include="IServerBusExtensions.cs" />
+    <Compile Include="ServerBusExtensions.cs" />
     <Compile Include="SessionService.cs" />
     <Compile Include="TextInputEventArgs.cs" />
     <Compile Include="ClientBusExtensions.cs" />
