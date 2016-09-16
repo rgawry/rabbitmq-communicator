@@ -22,4 +22,9 @@ namespace Chat
         /// <param name="handler">Handler that will be invoked when received message.</param>
         void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler);
     }
+
+    interface IPublishHub
+    {
+        void Send<TNotification>(TNotification notification, string channel);
+    }
 }

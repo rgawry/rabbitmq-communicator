@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Chat
 {
@@ -22,5 +23,12 @@ namespace Chat
         /// <param name="request">Request object.</param>
         /// <returns>Response object.</returns>
         Task<TResult> Request<TRequest, TResult>(TRequest request);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TNotification"></typeparam>
+        /// <param name="listener"></param>
+        void OnMessage<TNotification>(Action<TNotification> listener, string channel);
     }
 }

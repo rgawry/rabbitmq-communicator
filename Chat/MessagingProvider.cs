@@ -29,12 +29,12 @@ namespace Chat
             _channelProduce = _connection.CreateModel().DisposeWith(_instanceDisposer);
         }
 
-        public void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler, string requestName)
+        public void Receive(EventHandler<EnvelopeDeliveryEventArgs> handler, string channel)
         {
-            if (handler == null || string.IsNullOrWhiteSpace(requestName)) throw new ArgumentException();
+            if (handler == null || string.IsNullOrWhiteSpace(channel)) throw new ArgumentException();
 
-            _channelConsume.QueueDeclare(requestName, false, false, true, null);
-            _channelConsume.QueueBind(requestName, _exchangeName, requestName);
+            _channelConsume.QueueDeclare(channel, false, false, true, null);
+            _channelConsume.QueueBind(channel, _exchangeName, channel);
             _consumerReceivedHandler = (sender, args) =>
             {
                 Task.Run(() =>
@@ -52,7 +52,7 @@ namespace Chat
             _consumer = new EventingBasicConsumer(_channelConsume);
             _consumer.Received += _consumerReceivedHandler;
             Disposable.Create(() => _consumer.Received -= _consumerReceivedHandler).DisposeWith(_instanceDisposer);
-            _channelConsume.BasicConsume(requestName, true, _consumer);
+            _channelConsume.BasicConsume(channel, true, _consumer);
         }
 
         public void Send(Envelope envelope)
