@@ -3,20 +3,20 @@ using System;
 
 namespace Chat
 {
-    public sealed class RabbitMqServerBusFactory : IRabbitMqServerBusFactory, IDisposable
+    public sealed class MessagingProviderFactory : IMessagingProviderFactory, IDisposable
     {
         private Configuration _config;
         private IConnection _connection;
 
-        public RabbitMqServerBusFactory(Configuration configuration)
+        public MessagingProviderFactory(Configuration configuration)
         {
             _config = configuration;
         }
 
-        public RabbitMqServerBus Create(IMessageSerializer messageSerializer)
+        public MessagingProvider Create()
         {
             _connection = new ConnectionFactory { HostName = _config.HostName, Port = _config.Port }.CreateConnection();
-            return new RabbitMqServerBus(_config.ExchangeRequestName, _config.QueueRequestName, _connection, messageSerializer);
+            return new MessagingProvider(_config.ExchangeRequestName, _connection);
         }
 
         public void Dispose()

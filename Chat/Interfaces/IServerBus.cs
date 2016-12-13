@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace Chat
 {
@@ -9,12 +8,23 @@ namespace Chat
     public interface IServerBus
     {
         /// <summary>
-        /// Registers listener.
+        /// Registers new request listener.
+        /// </summary>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <param name="handler"></param>
+        void AddHandler<TRequest>(Action<TRequest> handler);
+
+        /// <summary>
+        /// Registers new request listener.
         /// </summary>
         /// <typeparam name="TRequest"></typeparam>
         /// <typeparam name="TResponse"></typeparam>
         /// <param name="handler">Handler that will be invoked when received message.</param>
-        /// <returns></returns>
         void AddHandler<TRequest, TResponse>(Func<TRequest, TResponse> handler);
+    }
+
+    interface IPublishHub
+    {
+        void Send<TNotification>(TNotification notification, string channel);
     }
 }

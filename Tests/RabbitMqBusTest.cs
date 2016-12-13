@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using RabbitMQ.Client;
 using System;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,44 +15,29 @@ namespace Chat
     [Timeout(2000)]
     public class RabbitMqBusTest
     {
-        private static Configuration config = new Configuration();
+        private CompositeDisposable _instanceDisposer;
 
-        private static IConnection CreateConnection()
+        [TearDown]
+        public void Dispose()
         {
-            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
-            return connectionFactory.CreateConnection();
+            _instanceDisposer.Dispose();
         }
 
-        private static RabbitMqClientBus GetClientBus()
+        [SetUp]
+        public void SetUp()
         {
-            var messageSerializer = new JsonMessageSerializer();
-            var connectionClient = CreateConnection();
-
-            return new RabbitMqClientBus(config.ExchangeRequestName, config.QueueRequestName, connectionClient, messageSerializer);
-        }
-
-        private static RabbitMqServerBus GetServerBus()
-        {
-            var messageSerializer = new JsonMessageSerializer();
-            var connectionServer = CreateConnection();
-
-            return new RabbitMqServerBus(config.ExchangeRequestName, config.QueueRequestName, connectionServer, messageSerializer);
+            _instanceDisposer = new CompositeDisposable();
         }
 
         [Test]
         public async Task ShouldReceiveSentMessage()
         {
+            var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
-            using (var serverBus = GetServerBus())
             {
-                clientBus.Initialize();
-                serverBus.Initialize();
-
-                var request = new TestMessageA { Name = "login1" };
-
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
 
-                var response = await clientBus.Request<TestMessageA, TestMessageC>(request);
+                var response = await clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
 
                 Assert.That(response.Done, Is.True);
             }
@@ -60,23 +46,17 @@ namespace Chat
         [Test]
         public async Task ShouldMatchRequestWithResponse()
         {
+            var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
-            using (var serverBus = GetServerBus())
             {
-                clientBus.Initialize();
-                serverBus.Initialize();
-
-                var request1 = new TestMessageA { Name = "login1" };
-                var request2 = new TestMessageA { Name = "login2" };
-
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req =>
                 {
                     if (req.Name == "login1") Thread.Sleep(500);
                     return new TestMessageC { Done = req.Name == "login1" ? true : false };
                 });
 
-                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(request1);
-                var response2AsTask = clientBus.Request<TestMessageA, TestMessageC>(request2);
+                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
+                var response2AsTask = clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login2" });
 
                 await Task.WhenAll(response1AsTask, response2AsTask);
 
@@ -88,43 +68,68 @@ namespace Chat
         [Test]
         public async Task ShouldMatchEachRequestTypeWithResponse()
         {
+            var serverBus = GetServerBus();
             using (var clientBus = GetClientBus())
-            using (var serverBus = GetServerBus())
             {
-                clientBus.Initialize();
-                serverBus.Initialize();
-
-                var request1 = new TestMessageA { Name = "login1" };
-                var request2 = new TestMessageB { Name = "login2" };
-
                 serverBus.AddHandler<TestMessageA, TestMessageC>(req => new TestMessageC { Done = true });
-                serverBus.AddHandler<TestMessageB, TestMessageC>(req => new TestMessageC { Done = true });
+                serverBus.AddHandler<TestMessageB, TestMessageC>(req => new TestMessageC { Done = false });
 
-                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(request1);
-                var response2AsTask = clientBus.Request<TestMessageB, TestMessageC>(request2);
+                var response1AsTask = clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
+                var response2AsTask = clientBus.Request<TestMessageB, TestMessageC>(new TestMessageB { Name = "login2" });
 
                 await Task.WhenAll(response1AsTask, response2AsTask);
 
                 Assert.That(response1AsTask.Result.Done, Is.True);
-                Assert.That(response2AsTask.Result.Done, Is.True);
+                Assert.That(response2AsTask.Result.Done, Is.False);
             }
         }
 
         [Test]
-        [Timeout(3000)]
-        public void ShouldTimeout()
+        public void ShouldRequestTimeout()
         {
             AsyncTestDelegate testDelegate = async () =>
             {
                 using (var clientBus = GetClientBus())
                 {
-                    clientBus.Initialize();
                     clientBus.TimeoutValue = 0.1f;
-                    var request = new TestMessageA { Name = "login1" };
-                    await clientBus.Request<TestMessageA, TestMessageC>(request);
+                    await clientBus.Request<TestMessageA, TestMessageC>(new TestMessageA { Name = "login1" });
                 };
             };
             Assert.That(testDelegate, Throws.TypeOf<TimeoutException>());
         }
+
+        #region test-help
+        private static Configuration config = new Configuration();
+
+        private static IConnection CreateConnection()
+        {
+            var connectionFactory = new ConnectionFactory { HostName = config.HostName, Port = config.Port };
+            return connectionFactory.CreateConnection();
+        }
+
+        private ClientBus GetClientBus()
+        {
+            var messageSerializer = new JsonMessageSerializer();
+            var connectionClient = CreateConnection().DisposeWith(_instanceDisposer);
+            var messagingProvider = new MessagingProvider(config.ExchangeRequestName, connectionClient);
+            messagingProvider.Initialize();
+            var clientBus = new ClientBus(messageSerializer, messagingProvider, config.QueueRequestName);
+            clientBus.Initialize();
+
+            return clientBus;
+        }
+
+        private ServerBus GetServerBus()
+        {
+            var messageSerializer = new JsonMessageSerializer();
+            var connectionServer = CreateConnection().DisposeWith(_instanceDisposer);
+            var messagingProvider = new MessagingProvider(config.ExchangeRequestName, connectionServer);
+            messagingProvider.Initialize();
+            var serverBus = new ServerBus(messageSerializer, messagingProvider, config.QueueRequestName);
+            serverBus.Initialize();
+
+            return serverBus;
+        }
+        #endregion
     }
 }

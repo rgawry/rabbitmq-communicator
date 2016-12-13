@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Chat
 {
@@ -8,6 +9,13 @@ namespace Chat
     public interface IClientBus
     {
         /// <summary>
+        /// Sends request to ChatServer. Does not expect response.
+        /// </summary>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <param name="request"></param>
+        void Request<TRequest>(TRequest request);
+
+        /// <summary>
         /// Sends request to ChatServer and returns response.
         /// </summary>
         /// <typeparam name="TRequest">Type of request.</typeparam>
@@ -15,5 +23,12 @@ namespace Chat
         /// <param name="request">Request object.</param>
         /// <returns>Response object.</returns>
         Task<TResult> Request<TRequest, TResult>(TRequest request);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TNotification"></typeparam>
+        /// <param name="listener"></param>
+        void OnMessage<TNotification>(Action<TNotification> listener, string channel);
     }
 }
